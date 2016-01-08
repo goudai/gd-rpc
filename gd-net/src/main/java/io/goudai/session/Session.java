@@ -35,12 +35,13 @@ public class Session {
         this.connectLatch.countDown();
     }
 
-    public void await(long miss){
+    public boolean await(long miss){
         try {
-            this.connectLatch.await(miss, TimeUnit.MILLISECONDS);
+           return this.connectLatch.await(miss, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             // ig
         }
+        throw new ConnectedTimeoutException("connected server timeout ");
     }
 
     public String getId() {

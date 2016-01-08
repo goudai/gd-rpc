@@ -23,7 +23,7 @@ public class Connector extends Thread implements Life{
 
     private final Selector selector;
     private final ReactorPool reactorPool;
-    private Queue<Reactor.AsyncRegistrySocketChannel> asyncRegistrySocketChannels = new ConcurrentLinkedQueue<>();
+    private Queue<Session>  asyncSessionQueue = new ConcurrentLinkedQueue<>();
 
 
     public Connector(String name,ReactorPool reactorPool) throws IOException {
@@ -48,6 +48,7 @@ public class Connector extends Thread implements Life{
         SocketChannel socketChannel = SocketChannel.open();
         socketChannel.configureBlocking(false);
         Session session = new Session(socketChannel, null, new Date());
+        this.asyncSessionQueue.offer(session);
         socketChannel.connect(remoteAddress);
         session.await(3000);
         return session;
@@ -76,14 +77,25 @@ public class Connector extends Thread implements Life{
                     key.interestOps(0);
                     session.finishConnect();
                     reactorPool.register(session.getSocketChannel(), session);
-                } else {
-                    key.cancel();
                 }
+                 key.cancel();
+
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
     }
 
+    private void handleReg(Selector selector) {
+        Session session = null;
+        while ((session = this.asyncSessionQueue.poll()) != null) {
+            try {
+                SelectionKey key = session.getSocketChannel().register(selector, SelectionKey.OP_CONNECT, session);
+                session.setKey(key);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
     private void doSelect() {
         try {
             this.selector.select();
