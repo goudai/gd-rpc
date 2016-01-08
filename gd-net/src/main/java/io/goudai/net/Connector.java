@@ -11,7 +11,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Date;
+import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by freeman on 2016/1/8.
@@ -20,16 +22,14 @@ public class Connector extends Thread implements Life{
     private static Logger logger = LoggerFactory.getLogger(Connector.class);
 
     private final Selector selector;
+    private final ReactorPool reactorPool;
+    private Queue<Reactor.AsyncRegistrySocketChannel> asyncRegistrySocketChannels = new ConcurrentLinkedQueue<>();
 
-    private ReactorPool reactorPool;
 
-    private InetSocketAddress remoteServerAddress;
-
-    public Connector(String name, InetSocketAddress remoteServerAddress, ReactorPool reactorPool) throws IOException {
+    public Connector(String name,ReactorPool reactorPool) throws IOException {
         super(name);
         this.reactorPool = reactorPool;
         this.selector = Selector.open();
-        this.remoteServerAddress = remoteServerAddress;
     }
 
     @Override
@@ -44,17 +44,12 @@ public class Connector extends Thread implements Life{
         this.selector.close();
     }
 
-    public Session connect(InetSocketAddress remoteAddress) throws IOException, InterruptedException {
+    public Session connect(InetSocketAddress remoteAddress,long timeout) throws IOException, InterruptedException {
         SocketChannel socketChannel = SocketChannel.open();
         socketChannel.configureBlocking(false);
         Session session = new Session(socketChannel, null, new Date());
-        this.selector.wakeup();
-        session.getRegLeach().await();
-
         socketChannel.connect(remoteAddress);
-        session.getLatch().await();
-
-
+        session.await(3000);
         return session;
     }
 
@@ -79,8 +74,7 @@ public class Connector extends Thread implements Life{
                         logger.info("check finish connection");
                     }
                     key.interestOps(0);
-                    key.cancel();
-                    session.getRegLeach().countDown();
+                    session.finishConnect();
                     reactorPool.register(session.getSocketChannel(), session);
                 } else {
                     key.cancel();

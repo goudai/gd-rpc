@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by freeman on 2016/1/8.
@@ -21,13 +22,25 @@ public class Session {
     protected Queue<ByteBuffer> writeBufferQueue = new ConcurrentLinkedQueue<>();
     protected Date createdTime;
     protected Date updateTime;
-    private CountDownLatch latch = new CountDownLatch(1);
-    private CountDownLatch regLeach = new CountDownLatch(1);
+    private CountDownLatch connectLatch = new CountDownLatch(1);
 
     public Session(SocketChannel socketChannel, SelectionKey key, Date createdTime) {
         this.socketChannel = socketChannel;
         this.key = key;
         this.createdTime = createdTime;
+    }
+
+
+    public void finishConnect(){
+        this.connectLatch.countDown();
+    }
+
+    public void await(long miss){
+        try {
+            this.connectLatch.await(miss, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            // ig
+        }
     }
 
     public String getId() {
@@ -78,21 +91,7 @@ public class Session {
         this.createdTime = createdTime;
     }
 
-    public CountDownLatch getLatch() {
-        return latch;
-    }
 
-    public void setLatch(CountDownLatch latch) {
-        this.latch = latch;
-    }
-
-    public CountDownLatch getRegLeach() {
-        return regLeach;
-    }
-
-    public void setRegLeach(CountDownLatch regLeach) {
-        this.regLeach = regLeach;
-    }
 
     public Date getUpdateTime() {
         return updateTime;

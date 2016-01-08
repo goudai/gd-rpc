@@ -137,7 +137,7 @@ public class Reactor extends Thread implements Life{
     }
 
 
-    static class AsyncRegistrySocketChannel {
+   public static class AsyncRegistrySocketChannel {
         private SocketChannel socketChannel;
         private int ops;
         private Session session;
