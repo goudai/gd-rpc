@@ -1,6 +1,7 @@
 package io.goudai.net;
 
 import io.goudai.common.Life;
+import io.goudai.session.AbstractSession;
 import io.goudai.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class Connector extends Thread implements Life{
     private void connect(SelectionKey key) {
         try {
             if (key.isValid() && key.isConnectable()) {
-                    Session session = (Session) key.attachment();
+                AbstractSession session = (AbstractSession) key.attachment();
                     while (!session.getSocketChannel().finishConnect()) {
                         logger.info("check finish connection");
                     }

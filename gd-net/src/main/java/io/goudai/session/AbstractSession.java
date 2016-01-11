@@ -14,7 +14,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Administrator on 2016/1/11.
+ * Created by freeman on 2016/1/11.
  */
 public abstract class AbstractSession {
     protected String id;
@@ -31,10 +31,10 @@ public abstract class AbstractSession {
     protected Date updateTime;
     private CountDownLatch connectLatch = new CountDownLatch(1);
 
-    public AbstractSession(SocketChannel socketChannel, SelectionKey key, Date createdTime) {
+    public AbstractSession(SocketChannel socketChannel, SelectionKey key) {
         this.socketChannel = socketChannel;
         this.key = key;
-        this.createdTime = createdTime;
+        this.createdTime = new Date();
     }
 
 
@@ -72,6 +72,7 @@ public abstract class AbstractSession {
      * @throws IOException
      */
     public abstract void write(byte[] bytes) throws IOException;
+
 
 
     public String getId() {

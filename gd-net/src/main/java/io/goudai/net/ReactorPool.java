@@ -1,7 +1,7 @@
 package io.goudai.net;
 
 import io.goudai.common.Life;
-import io.goudai.session.Session;
+import io.goudai.session.AbstractSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public class ReactorPool implements Life {
         this.register(socketChannel,null);
     }
 
-    public void register(SocketChannel socketChannel, Session session) throws ClosedChannelException {
+    public void register(SocketChannel socketChannel, AbstractSession session) throws ClosedChannelException {
         this.nextReactor().register(socketChannel, SelectionKey.OP_READ,session);
     }
 

@@ -1,7 +1,9 @@
 package io.goudai.net;
 
 import io.goudai.common.Life;
+import io.goudai.session.AbstractSession;
 import io.goudai.session.Session;
+import io.goudai.session.factory.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +31,14 @@ public class Reactor extends Thread implements Life{
     private Queue<AsyncRegistrySocketChannel> asyncRegistrySocketChannels = new ConcurrentLinkedQueue<>();
     /*唤醒标记用于减少唤醒次数*/
     private AtomicBoolean wakeup = new AtomicBoolean(false);
+    /*负责构造具体的session*/
+    private final SessionFactory sessionFactory;
 
 
-    public Reactor(String name) throws IOException {
+    public Reactor(String name,SessionFactory sessionFactory) throws IOException {
         super(name);
         this.selector = Selector.open();
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
@@ -68,7 +73,6 @@ public class Reactor extends Thread implements Life{
             if (key.isValid()) {
                 Session session = (Session) key.attachment();
                 session.setUpdateTime(new Date());
-                //TODO 具体设计待定
                 if (key.isReadable()) {
                     session.read();
                 } else if (key.isWritable()) {
@@ -108,7 +112,7 @@ public class Reactor extends Thread implements Life{
                     arsc.session.setKey(key);
                 } else {
                     SelectionKey key = arsc.socketChannel.register(selector, arsc.ops);
-                    arsc.session = new Session(arsc.socketChannel, key, new Date());
+                    arsc.session = sessionFactory.make(arsc.socketChannel, key);
                     key.attach(arsc.session);
                 }
 //                NioConfig.getHandler().onSessionCreated(session);
@@ -125,10 +129,12 @@ public class Reactor extends Thread implements Life{
         }
     }
 
-    public void register(SocketChannel socketChannel, int ops,Session session) throws ClosedChannelException {
+    public void register(SocketChannel socketChannel, int ops,AbstractSession session) throws ClosedChannelException {
         if(this == Thread.currentThread()){
             SelectionKey key = socketChannel.register(this.selector, ops);
-            session = new Session(socketChannel, key, new Date());
+            if(session == null){
+                session = sessionFactory.make(socketChannel, key);
+            }
             key.attach(session);
         }else{
             this.asyncRegistrySocketChannels.offer(new AsyncRegistrySocketChannel(socketChannel,ops,session));
@@ -140,9 +146,9 @@ public class Reactor extends Thread implements Life{
    public static class AsyncRegistrySocketChannel {
         private SocketChannel socketChannel;
         private int ops;
-        private Session session;
+        private AbstractSession session;
 
-        public AsyncRegistrySocketChannel(SocketChannel socketChannel, int ops, Session session) {
+        public AsyncRegistrySocketChannel(SocketChannel socketChannel, int ops, AbstractSession session) {
             this.socketChannel = socketChannel;
             this.ops = ops;
             this.session = session;
