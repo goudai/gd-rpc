@@ -70,9 +70,9 @@ public class Reactor extends Thread implements Life{
                 session.setUpdateTime(new Date());
                 //TODO 具体设计待定
                 if (key.isReadable()) {
-//                    NioConfig.getSessionHandler().handleRead(session);
+                    session.read();
                 } else if (key.isWritable()) {
-//                    NioConfig.getSessionHandler().handleWrite(session);
+                    session.realWrite();
                 } else {
                     key.cancel();
                 }
