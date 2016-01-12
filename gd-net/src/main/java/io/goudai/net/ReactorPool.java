@@ -2,6 +2,7 @@ package io.goudai.net;
 
 import io.goudai.common.Life;
 import io.goudai.session.AbstractSession;
+import io.goudai.session.factory.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ public class ReactorPool implements Life {
     private final int reactorCount;
     private AtomicInteger selectorIndex = new AtomicInteger();
 
-    public ReactorPool(int reactorCount) throws IOException {
+    public ReactorPool(int reactorCount,SessionFactory sessionFactory) throws IOException {
 
         if (reactorCount <= 0) {
             reactorCount = 1;
@@ -30,7 +31,7 @@ public class ReactorPool implements Life {
         }
         this.reactors = new Reactor[reactorCount];
         for (int i = 0; i < this.reactors.length; i++) {
-            this.reactors[i] = new Reactor("reactor--" + i);
+            this.reactors[i] = new Reactor("reactor--" + i,sessionFactory);
         }
         this.reactorCount = reactorCount;
     }
