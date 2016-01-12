@@ -35,6 +35,7 @@ public abstract class AbstractSession {
         this.socketChannel = socketChannel;
         this.key = key;
         this.createdTime = new Date();
+
     }
 
 
@@ -68,10 +69,10 @@ public abstract class AbstractSession {
     /**
      * 写入数据
      *
-     * @param bytes
+     * @param
      * @throws IOException
      */
-    public abstract void write(byte[] bytes) throws IOException;
+    public abstract   void write(Object t);
 
 
 

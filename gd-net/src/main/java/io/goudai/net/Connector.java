@@ -11,7 +11,6 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Date;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -48,11 +47,11 @@ public class Connector extends Thread implements Life{
     public Session connect(InetSocketAddress remoteAddress,long timeout) throws IOException, InterruptedException {
         SocketChannel socketChannel = SocketChannel.open();
         socketChannel.configureBlocking(false);
-        Session session = new Session(socketChannel, null, new Date());
-        this.asyncSessionQueue.offer(session);
-        socketChannel.connect(remoteAddress);
-        session.await(3000);
-        return session;
+//        Session session = new Session(socketChannel, null, new Date());
+//        this.asyncSessionQueue.offer(session);
+//        socketChannel.connect(remoteAddress);
+//        session.await(3000);
+        return null;
     }
 
     @Override

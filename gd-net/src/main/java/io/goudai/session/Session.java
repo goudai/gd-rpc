@@ -1,14 +1,29 @@
 package io.goudai.session;
 
+import io.goudai.buffer.BufferPool;
+import io.goudai.buffer.IoBuffer;
+import io.goudai.context.Context;
+import io.goudai.handler.codec.ByteToObjectDecoder;
+import io.goudai.handler.in.ChannelInHandler;
+import io.goudai.handler.serializeabler.Serializeabler;
+
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by freeman on 2016/1/8.
  */
-public class Session extends AbstractSession{
+public class Session<REQ> extends AbstractSession{
 
+    final ByteToObjectDecoder<REQ> decoder = Context.<REQ>getByteToObjectDecoderFactory().make();
+    final ChannelInHandler<REQ> channelHandler = Context.<REQ>getChannelHandlerFactory().make();
+    final Serializeabler serializeabler = Context.getSerializeablerFactory().make();
+    AtomicBoolean isEnableWriteEvent = new AtomicBoolean(false);
 
     public Session(SocketChannel socketChannel, SelectionKey key) {
         super(socketChannel, key);
@@ -16,18 +31,65 @@ public class Session extends AbstractSession{
     //TODO 实现具体的读
     @Override
     public void read() throws IOException {
-
+        if (readBuffer == null) readBuffer = IoBuffer.allocate(1024 * 8);
+        ByteBuffer buf = BufferPool.getInstance().allocate();
+        try {
+            //TODO 考虑是否每次强行读完 还是选择读物一个最大包
+            while (socketChannel.read(buf) > 0) {
+                byte [] bytes = new byte[buf.remaining()];
+                buf.get(bytes);
+                readBuffer.writeBytes(bytes, 0, buf.remaining());
+                buf.clear();
+            }
+        }finally {
+            BufferPool.getInstance().releaseBuffer(buf);
+        }
+        IoBuffer tempBuf = readBuffer.flip();
+        List<REQ> result = new ArrayList<>();
+        IoBuffer in = decoder.decode(tempBuf, result);
+        this.restReadBuffer(in);
+        channelHandler.received(this,result);
     }
     //TODO 实现具体的写
     @Override
     public void realWrite() throws IOException {
+        while (true) {
+            ByteBuffer buffer = writeBufferQueue.peek();
+            if (buffer == null) {
+                //通道的事件写完之后取消写事件
+                key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
+                isEnableWriteEvent.compareAndSet(true, false);
+                return;
+            }
+            int write = socketChannel.write(buffer);
+            if(write == 0 && buffer.remaining() > 0) {
+                return;
+            }
 
+            if(buffer.remaining() != 0) {
+                return;
+            }
+
+            writeBufferQueue.remove();
+        }
     }
-    //TODO 此处讲写入Queue 是否可以抽象到父类？
+
     @Override
-    public void write(byte[] bytes) throws IOException {
-
+    public void write(Object object) {
+        this.writeBufferQueue.offer(serializeabler.encode(object).buf());
+        if (isEnableWriteEvent.compareAndSet(false, true)) {
+            key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
+            key.selector().wakeup();
+        }
     }
 
+
+    private void restReadBuffer(IoBuffer tempBuf) {
+        if (tempBuf != null && tempBuf.remaining() > 0) {
+            readBuffer = IoBuffer.wrap(tempBuf.array());
+        } else {
+            readBuffer = null;
+        }
+    }
 
 }

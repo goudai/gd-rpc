@@ -129,6 +129,17 @@ public class Reactor extends Thread implements Life{
         }
     }
 
+    /**
+     * run是开启了另外一个线程
+     当你的操作当前线程 向run线程进行事件注册 这是不被允许的
+     所以要用一个队列来进行异步注册
+     那个判断的意思是如果当前是run线程 那么直接注册
+     否者 就进行异步注册
+     * @param socketChannel
+     * @param ops
+     * @param session
+     * @throws ClosedChannelException
+     */
     public void register(SocketChannel socketChannel, int ops,AbstractSession session) throws ClosedChannelException {
         if(this == Thread.currentThread()){
             SelectionKey key = socketChannel.register(this.selector, ops);
