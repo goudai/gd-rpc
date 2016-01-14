@@ -4,6 +4,7 @@ import io.goudai.buffer.BufferPool;
 import io.goudai.buffer.IoBuffer;
 import io.goudai.context.Context;
 import io.goudai.handler.codec.Decoder;
+import io.goudai.handler.codec.Encoder;
 import io.goudai.handler.in.ChannelInHandler;
 import io.goudai.handler.serializer.Serializer;
 
@@ -23,6 +24,7 @@ public class Session<REQ> extends AbstractSession{
     final Decoder<REQ> decoder = Context.<REQ>getByteToObjectDecoderFactory().make();
     final ChannelInHandler<REQ> channelHandler = Context.<REQ>getChannelHandlerFactory().make();
     final Serializer serializer = Context.getSerializerFactory().make();
+    final Encoder encoder = null; //TODO
     AtomicBoolean isEnableWriteEvent = new AtomicBoolean(false);
 
     public Session(SocketChannel socketChannel, SelectionKey key) {
@@ -76,7 +78,7 @@ public class Session<REQ> extends AbstractSession{
 
     @Override
     public void write(Object object) {
-        this.writeBufferQueue.offer(serializer.encode(object).buf());
+        this.writeBufferQueue.offer(encoder.encode(object));
         if (isEnableWriteEvent.compareAndSet(false, true)) {
             key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
             key.selector().wakeup();
