@@ -1,6 +1,6 @@
 package io.goudai.net;
 
-import io.goudai.common.Life;
+import io.goudai.common.Lifecycle;
 import io.goudai.session.AbstractSession;
 import io.goudai.session.Session;
 import io.goudai.session.factory.SessionFactory;
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by freeman on 2016/1/8.
  * 用于处理网络的read write事件
  */
-public class Reactor extends Thread implements Life{
+public class Reactor extends Thread implements Lifecycle{
 
     private static final Logger logger = LoggerFactory.getLogger(Reactor.class);
     /*处理读写事件的selector*/

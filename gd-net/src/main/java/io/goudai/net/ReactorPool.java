@@ -1,6 +1,6 @@
 package io.goudai.net;
 
-import io.goudai.common.Life;
+import io.goudai.common.Lifecycle;
 import io.goudai.session.AbstractSession;
 import io.goudai.session.factory.SessionFactory;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by freeman on 2016/1/8.
  */
-public class ReactorPool implements Life {
+public class ReactorPool implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(ReactorPool.class);
 
@@ -38,14 +38,14 @@ public class ReactorPool implements Life {
 
     @Override
     public void startup() throws Exception {
-        for (Life life : this.reactors) {
+        for (Lifecycle life : this.reactors) {
             life.startup();
         }
     }
 
     @Override
     public void shutdown() throws Exception {
-        for (Life life : this.reactors) {
+        for (Lifecycle life : this.reactors) {
             life.shutdown();
         }
     }
