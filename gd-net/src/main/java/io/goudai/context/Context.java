@@ -2,7 +2,7 @@ package io.goudai.context;
 
 import io.goudai.handler.codec.factory.ByteToObjectDecoderFactory;
 import io.goudai.handler.in.factory.ChannelHandlerFactory;
-import io.goudai.handler.serializeabler.factory.SerializeablerFactory;
+import io.goudai.handler.serializer.factory.SerializerFactory;
 
 /**
  * Created by freeman on 2016/1/12.
@@ -19,7 +19,7 @@ public class Context {
         return null;
     }
 
-    public static SerializeablerFactory getSerializeablerFactory(){
+    public static SerializerFactory getSerializerFactory(){
         return null;
     }
 }

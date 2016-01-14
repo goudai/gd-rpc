@@ -59,7 +59,7 @@ public class Acceptor extends Thread implements Life {
                 selector.select();
                 Set<SelectionKey> selectionKeys = selector.selectedKeys();
                 try {
-                    selectionKeys.forEach(this::accpect);
+                    selectionKeys.forEach(this::accept);
                 } finally {
                     selectionKeys.clear();
                 }
@@ -73,7 +73,7 @@ public class Acceptor extends Thread implements Life {
      * 处理accpect事件
      * @param key
      */
-    private void accpect(SelectionKey key) {
+    private void accept(SelectionKey key) {
             try {
                 if (key.isValid() && key.isAcceptable())
                 reactorPool.register((SocketChannel) ((ServerSocketChannel) key.channel()).accept().configureBlocking(false));
