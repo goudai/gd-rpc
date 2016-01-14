@@ -1,6 +1,5 @@
 package io.goudai.network;
 
-import io.goudai.common.Life;
 import io.goudai.context.Context;
 import io.goudai.context.ContextHolder;
 import io.goudai.handler.codec.Decoder;
@@ -42,7 +41,7 @@ public class Server {
 
         ReactorPool reactorPool = new ReactorPool(1, new DefaultSessionFactory());
         reactorPool.startup();
-        Life acceptor = new Acceptor("test-server", new InetSocketAddress(8888), reactorPool);
+        Acceptor acceptor = new Acceptor("test-server", new InetSocketAddress(8888), reactorPool);
         acceptor.startup();
     }
 }
