@@ -154,7 +154,6 @@ public class Reactor extends Thread implements Lifecycle{
         }
     }
 
-
    public static class AsyncRegistrySocketChannel {
         private SocketChannel socketChannel;
         private int ops;
