@@ -100,7 +100,5 @@ public class Session<REQ, RESP> extends AbstractSession<RESP> {
         }
     }
 
-    public CountDownLatch getRegLeach() {
-        return RegLeach;
-    }
+
 }

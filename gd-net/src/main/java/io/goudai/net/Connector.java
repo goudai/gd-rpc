@@ -1,6 +1,6 @@
 package io.goudai.net;
 
-import io.goudai.common.Life;
+import io.goudai.common.Lifecycle;
 import io.goudai.session.AbstractSession;
 import io.goudai.session.Session;
 import io.goudai.session.factory.SessionFactory;
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Created by freeman on 2016/1/8.
  */
-public class Connector extends Thread implements Life{
+public class Connector extends Thread implements Lifecycle{
     private static Logger logger = LoggerFactory.getLogger(Connector.class);
 
     private final Selector selector;

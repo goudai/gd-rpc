@@ -1,6 +1,6 @@
 package io.goudai.net;
 
-import io.goudai.common.Life;
+import io.goudai.common.Lifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,7 @@ import java.util.Set;
  * Created by freeman 2016/1/8.
  * 用于accept新连接
  */
-public class Acceptor extends Thread implements Life {
+public class Acceptor extends Thread implements Lifecycle {
     private static final Logger logger = LoggerFactory.getLogger(Acceptor.class);
     /*处理accept的选择器*/
     private final Selector selector;
