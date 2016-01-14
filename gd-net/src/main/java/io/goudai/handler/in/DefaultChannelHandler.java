@@ -13,6 +13,8 @@ public class DefaultChannelHandler<T> implements ChannelInHandler<T> {
 
     @Override
     public void received(AbstractSession session, List<T> request) {
-        //
+        request.forEach(System.out::println);
+        System.out.println("我是服务器的handler");
+        session.write("你好");
     }
 }

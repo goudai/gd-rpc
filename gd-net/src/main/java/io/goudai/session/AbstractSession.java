@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by freeman on 2016/1/11.
  */
-public abstract class AbstractSession {
+public abstract class AbstractSession<T> {
     protected String id;
     /*具体的server 于 client之间建立的真实通道*/
     protected SocketChannel socketChannel;
@@ -30,6 +30,7 @@ public abstract class AbstractSession {
     /* 每次session没操作更新 */
     protected Date updateTime;
     private CountDownLatch connectLatch = new CountDownLatch(1);
+
 
     public AbstractSession(SocketChannel socketChannel, SelectionKey key) {
         this.socketChannel = socketChannel;
@@ -72,7 +73,7 @@ public abstract class AbstractSession {
      * @param
      * @throws IOException
      */
-    public abstract   void write(Object t);
+    public abstract   void write(T t);
 
 
 
@@ -138,5 +139,10 @@ public abstract class AbstractSession {
 
     public void setConnectLatch(CountDownLatch connectLatch) {
         this.connectLatch = connectLatch;
+    }
+
+    CountDownLatch latch = new CountDownLatch(1);
+    public CountDownLatch getLatch() {
+        return latch;
     }
 }

@@ -3,6 +3,7 @@ package io.goudai.net;
 import io.goudai.common.Life;
 import io.goudai.session.AbstractSession;
 import io.goudai.session.Session;
+import io.goudai.session.factory.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,14 +45,15 @@ public class Connector extends Thread implements Life{
         this.selector.close();
     }
 
-    public Session connect(InetSocketAddress remoteAddress,long timeout) throws IOException, InterruptedException {
+    public Session connect(InetSocketAddress remoteAddress,long timeout,SessionFactory sessionFactory) throws IOException, InterruptedException {
         SocketChannel socketChannel = SocketChannel.open();
         socketChannel.configureBlocking(false);
-//        Session session = new Session(socketChannel, null, new Date());
-//        this.asyncSessionQueue.offer(session);
-//        socketChannel.connect(remoteAddress);
-//        session.await(3000);
-        return null;
+        Session session = (Session) sessionFactory.make(socketChannel,null);
+        this.asyncSessionQueue.offer(session);
+        socketChannel.connect(remoteAddress);
+        this.selector.wakeup();
+        session.await(timeout);
+        return session;
     }
 
     @Override
@@ -77,7 +79,7 @@ public class Connector extends Thread implements Life{
                     key.interestOps(0);
                     session.finishConnect();
                     reactorPool.register(session.getSocketChannel(), session);
-                }
+                }else
                  key.cancel();
 
         } catch (Exception e) {
@@ -85,7 +87,7 @@ public class Connector extends Thread implements Life{
         }
     }
 
-    private void handleReg(Selector selector) {
+    private void handleReg() {
         Session session = null;
         while ((session = this.asyncSessionQueue.poll()) != null) {
             try {
@@ -99,6 +101,7 @@ public class Connector extends Thread implements Life{
     private void doSelect() {
         try {
             this.selector.select();
+            this.handleReg();
         } catch (IOException e) {
             logger.error(e.getMessage(),e);
         }

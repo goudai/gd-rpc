@@ -35,6 +35,8 @@ public class Reactor extends Thread implements Life{
     private final SessionFactory sessionFactory;
 
 
+
+
     public Reactor(String name,SessionFactory sessionFactory) throws IOException {
         super(name);
         this.selector = Selector.open();
@@ -55,10 +57,9 @@ public class Reactor extends Thread implements Life{
 
     @Override
     public void run() {
-        final Selector selector = this.selector;
         while (!interrupted()) {
             doSelect();
-            Set<SelectionKey> selectionKeys = selector.selectedKeys();
+            Set<SelectionKey> selectionKeys = this.selector.selectedKeys();
             try {
                 selectionKeys.forEach(this::react);
             }finally {
@@ -110,6 +111,7 @@ public class Reactor extends Thread implements Life{
                 if (arsc.session != null) {
                     SelectionKey key = arsc.socketChannel.register(selector, arsc.ops, arsc.session);
                     arsc.session.setKey(key);
+                    arsc.session.getLatch().countDown();
                 } else {
                     SelectionKey key = arsc.socketChannel.register(selector, arsc.ops);
                     arsc.session = sessionFactory.make(arsc.socketChannel, key);
@@ -124,9 +126,9 @@ public class Reactor extends Thread implements Life{
 
     private void doWakeup() {
         final Selector selector = this.selector;
-        if (wakeup.compareAndSet(false, true)) {
-            selector.wakeup();
-        }
+            if (wakeup.compareAndSet(false, true)) {
+                selector.wakeup();
+            }
     }
 
     /**
