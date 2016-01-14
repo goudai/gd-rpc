@@ -4,6 +4,6 @@ import java.nio.ByteBuffer;
 
 public interface Encoder<T> {
 
-    ByteBuffer encode(Object response);
+    ByteBuffer encode(T response);
 
 }
