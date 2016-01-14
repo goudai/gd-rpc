@@ -141,8 +141,5 @@ public abstract class AbstractSession<T> {
         this.connectLatch = connectLatch;
     }
 
-    CountDownLatch latch = new CountDownLatch(1);
-    public CountDownLatch getLatch() {
-        return latch;
-    }
+
 }

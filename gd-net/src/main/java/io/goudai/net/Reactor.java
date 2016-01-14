@@ -111,7 +111,6 @@ public class Reactor extends Thread implements Life{
                 if (arsc.session != null) {
                     SelectionKey key = arsc.socketChannel.register(selector, arsc.ops, arsc.session);
                     arsc.session.setKey(key);
-                    arsc.session.getLatch().countDown();
                 } else {
                     SelectionKey key = arsc.socketChannel.register(selector, arsc.ops);
                     arsc.session = sessionFactory.make(arsc.socketChannel, key);

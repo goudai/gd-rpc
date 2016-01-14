@@ -9,7 +9,7 @@ import io.goudai.handler.codec.Encoder;
 import io.goudai.handler.in.ChannelInHandler;
 import io.goudai.handler.serializer.JavaSerializer;
 import io.goudai.handler.serializer.Serializer;
-import io.goudai.net.Connector2;
+import io.goudai.net.Connector;
 import io.goudai.net.ReactorPool;
 import io.goudai.session.AbstractSession;
 import io.goudai.session.Session;
@@ -40,9 +40,9 @@ public class Client {
         DefaultSessionFactory sessionFactory = new DefaultSessionFactory();
         ReactorPool reactorPool = new ReactorPool(1, sessionFactory);
         reactorPool.startup();
-        Connector2 connector = new Connector2("connector-1", reactorPool);
+        Connector connector = new Connector("connector-1", reactorPool);
         connector.start();
-        Session session = connector.connect(new InetSocketAddress(8888), sessionFactory);
+        Session session = connector.connect(new InetSocketAddress(8888),4000, sessionFactory);
         System.out.println(session);
         session.write(new User());
 
