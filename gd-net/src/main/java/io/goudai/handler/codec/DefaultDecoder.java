@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by freeman on 2016/1/12.
  */
-public class DefaultByteToObjectDecoder<T> implements ByteToObjectDecoder<T> {
+public class DefaultDecoder<T> implements Decoder<T> {
 
     @Override
     public IoBuffer decode(IoBuffer in, List<T> requests) {

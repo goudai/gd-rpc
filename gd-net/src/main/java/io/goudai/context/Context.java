@@ -1,6 +1,6 @@
 package io.goudai.context;
 
-import io.goudai.handler.codec.factory.ByteToObjectDecoderFactory;
+import io.goudai.handler.codec.factory.DecoderFactory;
 import io.goudai.handler.in.factory.ChannelHandlerFactory;
 import io.goudai.handler.serializer.factory.SerializerFactory;
 
@@ -11,7 +11,7 @@ import io.goudai.handler.serializer.factory.SerializerFactory;
 public class Context {
 
     //TODO 返回具体T的 ByteToPacketDecoderFactory 实现类
-    public static <T> ByteToObjectDecoderFactory<T> getByteToObjectDecoderFactory(){
+    public static <T> DecoderFactory<T> getByteToObjectDecoderFactory(){
         return null;
     }
 

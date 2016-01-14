@@ -3,7 +3,7 @@ package io.goudai.session;
 import io.goudai.buffer.BufferPool;
 import io.goudai.buffer.IoBuffer;
 import io.goudai.context.Context;
-import io.goudai.handler.codec.ByteToObjectDecoder;
+import io.goudai.handler.codec.Decoder;
 import io.goudai.handler.in.ChannelInHandler;
 import io.goudai.handler.serializer.Serializer;
 
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Session<REQ> extends AbstractSession{
 
-    final ByteToObjectDecoder<REQ> decoder = Context.<REQ>getByteToObjectDecoderFactory().make();
+    final Decoder<REQ> decoder = Context.<REQ>getByteToObjectDecoderFactory().make();
     final ChannelInHandler<REQ> channelHandler = Context.<REQ>getChannelHandlerFactory().make();
     final Serializer serializer = Context.getSerializerFactory().make();
     AtomicBoolean isEnableWriteEvent = new AtomicBoolean(false);
