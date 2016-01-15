@@ -1,9 +1,9 @@
 package io.goudai.net;
 
-import io.goudai.common.Lifecycle;
-import io.goudai.session.AbstractSession;
-import io.goudai.session.Session;
-import io.goudai.session.factory.SessionFactory;
+import io.goudai.net.common.Lifecycle;
+import io.goudai.net.session.AbstractSession;
+import io.goudai.net.session.Session;
+import io.goudai.net.session.factory.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by freeman on 2016/1/8.
  * 用于处理网络的read write事件
  */
-public class Reactor extends Thread implements Lifecycle{
+public class Reactor extends Thread implements Lifecycle {
 
     private static final Logger logger = LoggerFactory.getLogger(Reactor.class);
     /*处理读写事件的selector*/
@@ -35,9 +35,7 @@ public class Reactor extends Thread implements Lifecycle{
     private final SessionFactory sessionFactory;
 
 
-
-
-    public Reactor(String name,SessionFactory sessionFactory) throws IOException {
+    public Reactor(String name, SessionFactory sessionFactory) throws IOException {
         super(name);
         this.selector = Selector.open();
         this.sessionFactory = sessionFactory;
@@ -46,13 +44,30 @@ public class Reactor extends Thread implements Lifecycle{
     @Override
     public void startup() throws Exception {
         this.start();
-        logger.info("reactor {} started success",this.getName());
+        logger.info("reactor {} started success", this.getName());
     }
 
     @Override
     public void shutdown() throws Exception {
         this.selector.close();
         this.interrupt();
+    }
+
+    /**
+     * run是开启了另外一个线程
+     * 当你的操作当前线程 向run线程进行事件注册 这是不被允许的
+     * 所以要用一个队列来进行异步注册
+     * 那个判断的意思是如果当前是run线程 那么直接注册
+     * 否者 就进行异步注册
+     *
+     * @param socketChannel
+     * @param ops
+     * @param session
+     * @throws ClosedChannelException
+     */
+    public void register(SocketChannel socketChannel, int ops, AbstractSession session) throws ClosedChannelException {
+        this.asyncRegistrySocketChannels.offer(new AsyncRegistrySocketChannel(socketChannel, ops, session));
+        this.doWakeup();
     }
 
     @Override
@@ -62,7 +77,7 @@ public class Reactor extends Thread implements Lifecycle{
             Set<SelectionKey> selectionKeys = this.selector.selectedKeys();
             try {
                 selectionKeys.forEach(this::react);
-            }finally {
+            } finally {
                 selectionKeys.clear();
             }
         }
@@ -83,13 +98,7 @@ public class Reactor extends Thread implements Lifecycle{
                 }
             }
         } catch (Exception e) {
-            try {
-                key.channel().close();
-                key.cancel();
-            } catch (IOException e1) {
-                logger.error(e.getMessage(), e);
-            }
-            logger.error(e.getMessage(), e);
+           logger.warn(e.getMessage(),e);
 
         }
     }
@@ -116,7 +125,6 @@ public class Reactor extends Thread implements Lifecycle{
                     arsc.session = sessionFactory.make(arsc.socketChannel, key);
                     key.attach(arsc.session);
                 }
-//                NioConfig.getHandler().onSessionCreated(session);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -125,36 +133,13 @@ public class Reactor extends Thread implements Lifecycle{
 
     private void doWakeup() {
         final Selector selector = this.selector;
-            if (wakeup.compareAndSet(false, true)) {
-                selector.wakeup();
-            }
-    }
-
-    /**
-     * run是开启了另外一个线程
-     当你的操作当前线程 向run线程进行事件注册 这是不被允许的
-     所以要用一个队列来进行异步注册
-     那个判断的意思是如果当前是run线程 那么直接注册
-     否者 就进行异步注册
-     * @param socketChannel
-     * @param ops
-     * @param session
-     * @throws ClosedChannelException
-     */
-    public void register(SocketChannel socketChannel, int ops,AbstractSession session) throws ClosedChannelException {
-        if(this == Thread.currentThread()){
-            SelectionKey key = socketChannel.register(this.selector, ops);
-            if(session == null){
-                session = sessionFactory.make(socketChannel, key);
-            }
-            key.attach(session);
-        }else{
-            this.asyncRegistrySocketChannels.offer(new AsyncRegistrySocketChannel(socketChannel,ops,session));
-            this.doWakeup();
+        if (wakeup.compareAndSet(false, true)) {
+            selector.wakeup();
         }
     }
 
-   public static class AsyncRegistrySocketChannel {
+
+    private static class AsyncRegistrySocketChannel {
         private SocketChannel socketChannel;
         private int ops;
         private AbstractSession session;

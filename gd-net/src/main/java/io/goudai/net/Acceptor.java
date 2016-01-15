@@ -1,6 +1,6 @@
 package io.goudai.net;
 
-import io.goudai.common.Lifecycle;
+import io.goudai.net.common.Lifecycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

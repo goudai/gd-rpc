@@ -10,6 +10,7 @@
     <module>gd-net</module>
     <module>gd-registry</module>
     <module>gd-rpc</module>
+    <module>gd-commons</module>
   </modules>
 
 

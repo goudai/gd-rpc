@@ -1,39 +1,35 @@
 package io.goudai.network;
 
-import io.goudai.context.Context;
-import io.goudai.context.ContextHolder;
-import io.goudai.handler.codec.Decoder;
-import io.goudai.handler.codec.DefaultDecoder;
-import io.goudai.handler.codec.DefaultEncoder;
-import io.goudai.handler.codec.Encoder;
-import io.goudai.handler.in.ChannelInHandler;
-import io.goudai.handler.serializer.JavaSerializer;
-import io.goudai.handler.serializer.Serializer;
+import io.goudai.commons.factory.NamedThreadFactory;
+import io.goudai.net.context.Context;
+import io.goudai.net.context.ContextHolder;
+import io.goudai.net.handler.codec.Decoder;
+import io.goudai.net.handler.codec.DefaultDecoder;
+import io.goudai.net.handler.codec.DefaultEncoder;
+import io.goudai.net.handler.codec.Encoder;
+import io.goudai.net.handler.in.ChannelInHandler;
+import io.goudai.net.handler.serializer.JavaSerializer;
+import io.goudai.net.handler.serializer.Serializer;
 import io.goudai.net.Connector;
 import io.goudai.net.ReactorPool;
-import io.goudai.session.AbstractSession;
-import io.goudai.session.Session;
-import io.goudai.session.factory.DefaultSessionFactory;
+import io.goudai.net.session.Session;
+import io.goudai.net.session.factory.DefaultSessionFactory;
 
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- * Created by Administrator on 2016/1/14.
+ * Created by freeman on 2016/1/14.
  */
 public class Client {
     static {
         Serializer serializer = new JavaSerializer();
         Decoder<User> decoder = new DefaultDecoder<>(serializer);
         Encoder<User> encoder = new DefaultEncoder<>(serializer);
-        ChannelInHandler<User> channelInHandler =  new ChannelInHandler<User>() {
-            @Override
-            public void received(AbstractSession session, List<User> request) {
-                System.out.println("client received on server ");
-                request.forEach(System.out::println);
-            }
-        };
-        Context<User, User> context = new Context<>(decoder, encoder, channelInHandler, serializer);
+        ChannelInHandler<User> channelInHandler =  (session,request) -> { System.out.println("client received on server ");System.out.println(request);};
+        ExecutorService executorService = Executors.newFixedThreadPool(20,new NamedThreadFactory());
+        Context<User, User> context = new Context<>(decoder, encoder, channelInHandler, serializer,executorService);
         ContextHolder.registed(context);
     }
     public static void main(String[] args) throws Exception {

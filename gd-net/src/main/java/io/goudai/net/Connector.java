@@ -1,9 +1,9 @@
 package io.goudai.net;
 
-import io.goudai.common.Lifecycle;
-import io.goudai.session.AbstractSession;
-import io.goudai.session.Session;
-import io.goudai.session.factory.SessionFactory;
+import io.goudai.net.common.Lifecycle;
+import io.goudai.net.session.AbstractSession;
+import io.goudai.net.session.Session;
+import io.goudai.net.session.factory.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

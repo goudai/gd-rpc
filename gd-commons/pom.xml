@@ -7,10 +7,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>gd-net</artifactId>
+    <artifactId>gd-commons</artifactId>
     <packaging>jar</packaging>
 
-    <name>gd-net</name>
+    <name>gd-commons</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -21,13 +21,8 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>3.8.1</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.goudai</groupId>
-            <artifactId>gd-commons</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
