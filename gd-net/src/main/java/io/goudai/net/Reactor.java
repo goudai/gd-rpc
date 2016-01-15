@@ -98,6 +98,13 @@ public class Reactor extends Thread implements Lifecycle {
                 }
             }
         } catch (Exception e) {
+            try {
+                key.channel().close();
+            } catch (IOException e1) {
+//                ig
+            }
+            key.cancel();
+
            logger.warn(e.getMessage(),e);
 
         }

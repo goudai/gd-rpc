@@ -76,9 +76,9 @@ public class Context<REQ, RESP> {
             Assert.assertNotNull("serializer  d'not is  null", serializer);
             Assert.assertNotNull("executorService  d'not is  null", executorService);
             Context<REQ, RESP> context = new Context<>(decoder, encoder, channelInHandler, serializer, executorService);
-            logger.debug("init context success Context={[]}", context);
+            logger.debug("init context success ------ \n Context=[{}]", context);
             ContextHolder.registed(context);
-            logger.debug("registed context to ContextHolder success Context={[]}", context);
+            logger.debug("registed context to ContextHolder success --\n Context=[{}]", context);
         }
 
 
