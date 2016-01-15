@@ -14,13 +14,13 @@ public class Context<REQ, RESP> {
 
     private final Decoder<REQ> decoder;
     private final Encoder<RESP> encoder;
-    private final ChannelInHandler<REQ> channelHanlder;
+    private final ChannelInHandler<REQ> channelInHandler;
     private final Serializer serializer;
 
-    public Context(Decoder<REQ> decoder, Encoder<RESP> encoder, ChannelInHandler<REQ> channelHanlder, Serializer serializer) {
+    public Context(Decoder<REQ> decoder, Encoder<RESP> encoder, ChannelInHandler<REQ> channelInHandler, Serializer serializer) {
         this.decoder = decoder;
         this.encoder = encoder;
-        this.channelHanlder = channelHanlder;
+        this.channelInHandler = channelInHandler;
         this.serializer = serializer;
     }
 
@@ -34,8 +34,8 @@ public class Context<REQ, RESP> {
     }
 
 
-    public ChannelInHandler<REQ> getChannelHanlder() {
-        return channelHanlder;
+    public ChannelInHandler<REQ> getChannelInHandler() {
+        return channelInHandler;
     }
 
 
