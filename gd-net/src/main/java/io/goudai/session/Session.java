@@ -32,7 +32,7 @@ public class Session<REQ, RESP> extends AbstractSession<RESP> {
     public Session(SocketChannel socketChannel, SelectionKey key, Context<REQ, RESP> context) {
         super(socketChannel, key);
         this.decoder = context.getDecoder();
-        this.channelHandler = context.getChannelHanlder();
+        this.channelHandler = context.getChannelInHandler();
         this.encoder = context.getEncoder();
 
     }
