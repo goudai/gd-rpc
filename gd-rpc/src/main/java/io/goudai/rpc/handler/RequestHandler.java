@@ -10,7 +10,7 @@ import io.goudai.rpc.model.Request;
  */
 public class RequestHandler implements ChannelInHandler<Request> {
 
-    //TODO 此处接受到client的请求 进行处理 并使用session写会应答
+    //TODO 此处接受到client的请求 进行处理 并使用session写回response
     @Override
     public void received(AbstractSession session, Request request) {
 
