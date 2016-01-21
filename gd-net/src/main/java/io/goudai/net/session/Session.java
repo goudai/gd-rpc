@@ -3,9 +3,9 @@ package io.goudai.net.session;
 import io.goudai.net.buffer.BufferPool;
 import io.goudai.net.buffer.IoBuffer;
 import io.goudai.net.context.Context;
+import io.goudai.net.handler.ChannelHandler;
 import io.goudai.net.handler.codec.Decoder;
 import io.goudai.net.handler.codec.Encoder;
-import io.goudai.net.handler.in.ChannelInHandler;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -13,7 +13,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -24,16 +23,15 @@ public class Session<REQ, RESP> extends AbstractSession {
 
 
     private final Decoder<REQ> decoder;
-    private final ChannelInHandler<REQ> channelHandler;
+    private final ChannelHandler channelHandler;
     private final Encoder<RESP> encoder;
     private final ExecutorService executorService;
     AtomicBoolean isEnableWriteEvent = new AtomicBoolean(false);
-    private CountDownLatch RegLeach = new CountDownLatch(1);
 
     public Session(SocketChannel socketChannel, SelectionKey key, Context<REQ, RESP> context) {
         super(socketChannel, key);
         this.decoder = context.getDecoder();
-        this.channelHandler = context.getChannelInHandler();
+        this.channelHandler = context.getChannelHandler();
         this.encoder = context.getEncoder();
         this.executorService = context.getExecutorService();
     }

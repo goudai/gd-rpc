@@ -42,7 +42,7 @@ public class BufferPool {
         ByteBuffer bb = this.queue.poll();
         //TODO 目前无限制分配 只是在回收的时候舍弃掉多余的buffer
         if (bb == null) {// 如果缓冲区不够则创建新的缓冲区
-            bb = ByteBuffer.allocate(writeBufferSize * 1024);
+            bb = ByteBuffer.allocateDirect(writeBufferSize * 1024);
             this.createCount.incrementAndGet();
         } else {
             this.usableCount.decrementAndGet();

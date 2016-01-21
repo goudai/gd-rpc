@@ -5,7 +5,7 @@ package io.goudai.commons.pool;
  */
 public interface Pool<T> {
 
-    T borrowObject();
+    T borrowObject() throws Exception;
 
     void returnObject(T t);
 

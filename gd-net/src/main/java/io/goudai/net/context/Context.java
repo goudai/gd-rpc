@@ -1,9 +1,9 @@
 package io.goudai.net.context;
 
 import io.goudai.commons.util.Assert;
+import io.goudai.net.handler.ChannelHandler;
 import io.goudai.net.handler.codec.Decoder;
 import io.goudai.net.handler.codec.Encoder;
-import io.goudai.net.handler.in.ChannelInHandler;
 import io.goudai.net.handler.serializer.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ public class Context<REQ, RESP> {
 
     private final Decoder<REQ> decoder;
     private final Encoder<RESP> encoder;
-    private final ChannelInHandler<REQ> channelInHandler;
+    private ChannelHandler channelInHandler;
     private final Serializer serializer;
     private final ExecutorService executorService;
 
@@ -29,18 +29,19 @@ public class Context<REQ, RESP> {
         return new ContextBuilder<>();
     }
 
-    private Context(Decoder<REQ> decoder, Encoder<RESP> encoder, ChannelInHandler<REQ> channelInHandler, Serializer serializer, ExecutorService executorService) {
+    private Context(Decoder<REQ> decoder, Encoder<RESP> encoder, Serializer serializer, ExecutorService executorService,ChannelHandler channelHandler) {
         this.decoder = decoder;
         this.encoder = encoder;
-        this.channelInHandler = channelInHandler;
         this.serializer = serializer;
         this.executorService = executorService;
+        this.channelInHandler = channelHandler;
     }
 
     public static class ContextBuilder<REQ, RESP> {
         Decoder<REQ> decoder;
         Encoder<RESP> encoder;
-        ChannelInHandler<REQ> channelInHandler;
+        ChannelHandler channelInHandler;
+
         Serializer serializer;
         ExecutorService executorService;
 
@@ -54,10 +55,11 @@ public class Context<REQ, RESP> {
             return this;
         }
 
-        public ContextBuilder<REQ, RESP> channelInHandler(ChannelInHandler<REQ> channelInHandler) {
+        public ContextBuilder<REQ, RESP> channelHandler(ChannelHandler channelInHandler) {
             this.channelInHandler = channelInHandler;
             return this;
         }
+
 
         public ContextBuilder<REQ, RESP> serializer(Serializer serializer) {
             this.serializer = serializer;
@@ -70,12 +72,12 @@ public class Context<REQ, RESP> {
         }
 
         public void init() {
-            Assert.assertNotNull("decoder  d'not is  null", decoder);
-            Assert.assertNotNull("encoder  d'not is  null", encoder);
-            Assert.assertNotNull("channelInHandler  d'not is  null", channelInHandler);
-            Assert.assertNotNull("serializer  d'not is  null", serializer);
-            Assert.assertNotNull("executorService  d'not is  null", executorService);
-            Context<REQ, RESP> context = new Context<>(decoder, encoder, channelInHandler, serializer, executorService);
+            Assert.assertNotNull("decoder must be not null", decoder);
+            Assert.assertNotNull("encoder ", encoder);
+            Assert.assertNotNull("serializer ", serializer);
+            Assert.assertNotNull("executorService ", executorService);
+            Assert.assertNotNull("channelInHandler ", channelInHandler);
+            Context<REQ, RESP> context = new Context<>(decoder, encoder, serializer, executorService,channelInHandler);
             logger.debug("init context success ------ \n Context=[{}]", context);
             ContextHolder.registed(context);
             logger.debug("registed context to ContextHolder success --\n Context=[{}]", context);
@@ -95,7 +97,7 @@ public class Context<REQ, RESP> {
     }
 
 
-    public ChannelInHandler<REQ> getChannelInHandler() {
+    public ChannelHandler getChannelHandler() {
         return channelInHandler;
     }
 
@@ -113,7 +115,6 @@ public class Context<REQ, RESP> {
         return "Context{" +
                 "decoder=" + decoder +
                 ", encoder=" + encoder +
-                ", channelInHandler=" + channelInHandler +
                 ", serializer=" + serializer +
                 ", executorService=" + executorService +
                 '}';

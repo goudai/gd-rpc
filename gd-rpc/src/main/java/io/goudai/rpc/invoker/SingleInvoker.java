@@ -3,7 +3,7 @@ package io.goudai.rpc.invoker;
 import io.goudai.commons.pool.Pool;
 import io.goudai.commons.pool.PoolConfig;
 import io.goudai.commons.pool.factory.ObjectFactory;
-import io.goudai.commons.pool.impl.DefaultPool;
+import io.goudai.commons.pool.impl.JavaPool;
 import io.goudai.rpc.exception.RpcException;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
@@ -17,9 +17,9 @@ public class SingleInvoker implements Invoker {
     private int workThreads;
     private Pool<RequestSession> requsetSessionPool;
 
-    public SingleInvoker(int workThreads,ObjectFactory<RequestSession> requestSessionObjectFactory ,PoolConfig poolConfig) {
+    public SingleInvoker(int workThreads, ObjectFactory<RequestSession> requestSessionObjectFactory, PoolConfig poolConfig) {
         this.workThreads = workThreads;
-        this.requsetSessionPool = new DefaultPool<>(requestSessionObjectFactory,poolConfig);
+        this.requsetSessionPool = new JavaPool<>(requestSessionObjectFactory, poolConfig);
     }
 
     @Override
@@ -29,10 +29,14 @@ public class SingleInvoker implements Invoker {
 
     @Override
     public Response invoke(Request request) throws RpcException {
-        RequestSession requestSession = this.requsetSessionPool.borrowObject();
         Response response = null;
+        RequestSession requestSession = null;
         try {
+            requestSession = this.requsetSessionPool.borrowObject();
             response = requestSession.invoker(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setException(e);
         } finally {
             this.requsetSessionPool.returnObject(requestSession);
         }

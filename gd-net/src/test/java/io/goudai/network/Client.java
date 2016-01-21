@@ -24,7 +24,7 @@ public class Client {
                 .decoder(new DefaultDecoder<>(serializer))
                 .encoder(new DefaultEncoder<>(serializer))
                 .serializer(serializer)
-                .channelInHandler((session, request) -> {
+                .channelHandler((session, request) -> {
                     System.out.println("client received on server ");
                     System.out.println(request);
                 })
