@@ -30,6 +30,7 @@ public class Server {
                     session.write(new User());
                 })
                 .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory()))
+                .build()
                 .init();
     }
 

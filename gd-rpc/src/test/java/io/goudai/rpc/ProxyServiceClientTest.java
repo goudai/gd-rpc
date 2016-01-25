@@ -35,6 +35,7 @@ public class ProxyServiceClientTest {
                 .serializer(serializer)
                 .channelHandler(new ResponseHandler())
                 .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory()))
+                .build()
                 .init();
     }
     public static void main(String[] args) throws Exception {
