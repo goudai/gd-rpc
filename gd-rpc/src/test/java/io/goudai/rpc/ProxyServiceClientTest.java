@@ -43,13 +43,13 @@ public class ProxyServiceClientTest {
         reactorPool.startup();
         Connector connector = new Connector("rpc-client", reactorPool);
         connector.startup();
-        Invoker singleInvoker = new SingleInvoker(30, () -> {
+        Invoker singleInvoker = new SingleInvoker(() -> {
             try {
                 return new RequestSession(new InetSocketAddress(8888), connector, sessionFactory);
             } catch (Exception e) {
                 throw new RpcException(e.getMessage(), e);
             }
-        }, new PoolConfig());
+        }, PoolConfig.builder().max(30).init(30).build());
         ProxyServiceFactory proxyServiceFactory = new JavaProxyServiceFactory(singleInvoker);
         UserService serviceProxy = proxyServiceFactory.createServiceProxy(UserService.class);
         User add = serviceProxy.add(new User());

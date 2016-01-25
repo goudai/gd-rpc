@@ -4,7 +4,6 @@ import io.goudai.net.common.Lifecycle;
 import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.Session;
 import io.goudai.net.session.factory.SessionFactory;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +23,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 用于处理网络的read write事件
  */
 @Getter
-@Builder
 @Slf4j
 public class Reactor extends Thread implements Lifecycle {
 

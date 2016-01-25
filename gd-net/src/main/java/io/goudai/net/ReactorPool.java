@@ -3,7 +3,6 @@ package io.goudai.net;
 import io.goudai.net.common.Lifecycle;
 import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.factory.SessionFactory;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by freeman on 2016/1/8.
  */
 @Slf4j
-@Builder
 public class ReactorPool implements Lifecycle {
 
 

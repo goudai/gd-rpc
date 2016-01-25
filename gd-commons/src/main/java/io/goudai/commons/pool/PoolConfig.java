@@ -1,8 +1,13 @@
 package io.goudai.commons.pool;
 
+import lombok.Builder;
+import lombok.Data;
+
 /**
  * Created by freeman on 2016/1/17.
  */
+@Builder
+@Data
 public class PoolConfig {
     /**
      * 初始化池大小
@@ -13,19 +18,4 @@ public class PoolConfig {
      */
     private int max = 64;
 
-    public int getInit() {
-        return init;
-    }
-
-    public void setInit(int init) {
-        this.init = init;
-    }
-
-    public int getMax() {
-        return max;
-    }
-
-    public void setMax(int max) {
-        this.max = max;
-    }
 }

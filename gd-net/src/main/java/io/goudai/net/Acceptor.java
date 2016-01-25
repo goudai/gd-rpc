@@ -1,7 +1,6 @@
 package io.goudai.net;
 
 import io.goudai.net.common.Lifecycle;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -17,7 +16,6 @@ import java.util.Set;
  * 用于accept新连接
  */
 @Slf4j
-@Builder
 public class Acceptor extends Thread implements Lifecycle {
     /*处理accept的选择器*/
     private final Selector selector;
