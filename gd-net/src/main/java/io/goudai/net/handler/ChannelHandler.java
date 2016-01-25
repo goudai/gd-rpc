@@ -3,7 +3,7 @@ package io.goudai.net.handler;
 import io.goudai.net.session.AbstractSession;
 
 /**
- * Created by Administrator on 2016/1/12.
+ * Created by freeman on 2016/1/12.
  */
 public interface ChannelHandler {
 

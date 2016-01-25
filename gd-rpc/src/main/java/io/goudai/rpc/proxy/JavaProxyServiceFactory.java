@@ -4,6 +4,8 @@ import io.goudai.rpc.exception.RpcException;
 import io.goudai.rpc.invoker.Invoker;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
+import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -12,14 +14,11 @@ import java.util.UUID;
 /**
  * Created by freeman on 2016/1/17.
  */
+@Builder
+@RequiredArgsConstructor
 public class JavaProxyServiceFactory implements ProxyServiceFactory {
     /*将实际的调用委托到invoker.invoke上进行处理 的*/
     private final Invoker invoker;
-
-    public JavaProxyServiceFactory(Invoker invoker) {
-        this.invoker = invoker;
-    }
-
 
     public <T> T createServiceProxy(Class<T> interfaceClass) throws RpcException {
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, (proxy, method, args) -> {
@@ -30,15 +29,13 @@ public class JavaProxyServiceFactory implements ProxyServiceFactory {
         });
     }
 
-
-    public  <T> Request makeRequest(Class<T> klass, Method method, Object[] args) {
-        Request request = new Request();
-        request.setId(UUID.randomUUID().toString());
-        request.setService(klass.getName());
-        request.setParams(args);
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        request.setPatamType(parameterTypes);
-        request.setMethodName(method.getName());
-        return request;
+    public <T> Request makeRequest(Class<T> klass, Method method, Object[] args) {
+        return Request.builder()
+                .id(UUID.randomUUID().toString())
+                .service(klass.getName())
+                .params(args)
+                .patamType(method.getParameterTypes())
+                .methodName(method.getName())
+                .build();
     }
 }

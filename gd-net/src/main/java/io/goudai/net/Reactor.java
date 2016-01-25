@@ -4,8 +4,9 @@ import io.goudai.net.common.Lifecycle;
 import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.Session;
 import io.goudai.net.session.factory.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -22,15 +23,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by freeman on 2016/1/8.
  * 用于处理网络的read write事件
  */
+@Getter
+@Builder
+@Slf4j
 public class Reactor extends Thread implements Lifecycle {
 
-    private static final Logger logger = LoggerFactory.getLogger(Reactor.class);
     /*处理读写事件的selector*/
     private final Selector selector;
     /*由于channel注册不能进行跨线程，所以使用一个队列来进行异步的注册*/
     private Queue<AsyncRegistrySocketChannel> asyncRegistrySocketChannels = new ConcurrentLinkedQueue<>();
     /*唤醒标记用于减少唤醒次数*/
-    private AtomicBoolean wakeup = new AtomicBoolean(false);
+    private final static AtomicBoolean wakeup = new AtomicBoolean(false);
     /*负责构造具体的session*/
     private final SessionFactory sessionFactory;
 
@@ -44,7 +47,7 @@ public class Reactor extends Thread implements Lifecycle {
     @Override
     public void startup() throws Exception {
         this.start();
-        logger.info("reactor {} started success", this.getName());
+        log.info("reactor {} started success", this.getName());
     }
 
     @Override
@@ -53,18 +56,6 @@ public class Reactor extends Thread implements Lifecycle {
         this.interrupt();
     }
 
-    /**
-     * run是开启了另外一个线程
-     * 当你的操作当前线程 向run线程进行事件注册 这是不被允许的
-     * 所以要用一个队列来进行异步注册
-     * 那个判断的意思是如果当前是run线程 那么直接注册
-     * 否者 就进行异步注册
-     *
-     * @param socketChannel
-     * @param ops
-     * @param session
-     * @throws ClosedChannelException
-     */
     public void register(SocketChannel socketChannel, int ops, AbstractSession session) throws ClosedChannelException {
         this.asyncRegistrySocketChannels.offer(new AsyncRegistrySocketChannel(socketChannel, ops, session));
         this.doWakeup();
@@ -105,7 +96,7 @@ public class Reactor extends Thread implements Lifecycle {
             }
             key.cancel();
 
-           logger.warn(e.getMessage(),e);
+            log.warn(e.getMessage(),e);
 
         }
     }
@@ -116,7 +107,7 @@ public class Reactor extends Thread implements Lifecycle {
             this.selector.select();
             this.asyncRegistry();
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -133,7 +124,7 @@ public class Reactor extends Thread implements Lifecycle {
                     key.attach(arsc.session);
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
     }

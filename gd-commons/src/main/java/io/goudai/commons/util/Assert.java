@@ -1,7 +1,7 @@
 package io.goudai.commons.util;
 
 /**
- * Created by vip on 2016/1/15.
+ * Created by freeman on 2016/1/15.
  */
 public class Assert {
 

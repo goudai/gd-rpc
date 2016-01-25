@@ -36,7 +36,7 @@ public class RequestSession {
             if (!token.await(timeout, TimeUnit.MILLISECONDS)) {
                 throw new RuntimeException("time out");
             }
-            return token.response();
+            return token.getResponse();
         } catch (Exception e) {
             throw new RpcException(e.getMessage(),e);
         }

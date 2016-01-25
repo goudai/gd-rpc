@@ -13,13 +13,10 @@ import io.goudai.rpc.model.Response;
  */
 public class SingleInvoker implements Invoker {
 
-    /*进行池化的session数量*/
-    private int workThreads;
-    private Pool<RequestSession> requsetSessionPool;
+    private Pool<RequestSession> requestSessionPool;
 
-    public SingleInvoker(int workThreads, ObjectFactory<RequestSession> requestSessionObjectFactory, PoolConfig poolConfig) {
-        this.workThreads = workThreads;
-        this.requsetSessionPool = new JavaPool<>(requestSessionObjectFactory, poolConfig);
+    public SingleInvoker(ObjectFactory<RequestSession> requestSessionObjectFactory, PoolConfig poolConfig) {
+        this.requestSessionPool = new JavaPool<>(requestSessionObjectFactory, poolConfig);
     }
 
     @Override
@@ -32,13 +29,13 @@ public class SingleInvoker implements Invoker {
         Response response = null;
         RequestSession requestSession = null;
         try {
-            requestSession = this.requsetSessionPool.borrowObject();
+            requestSession = this.requestSessionPool.borrowObject();
             response = requestSession.invoker(request);
         } catch (Exception e) {
             e.printStackTrace();
             response.setException(e);
         } finally {
-            this.requsetSessionPool.returnObject(requestSession);
+            this.requestSessionPool.returnObject(requestSession);
         }
         return response;
     }

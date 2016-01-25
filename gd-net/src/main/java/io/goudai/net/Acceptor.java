@@ -1,8 +1,8 @@
 package io.goudai.net;
 
 import io.goudai.net.common.Lifecycle;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,8 +16,9 @@ import java.util.Set;
  * Created by freeman 2016/1/8.
  * 用于accept新连接
  */
+@Slf4j
+@Builder
 public class Acceptor extends Thread implements Lifecycle {
-    private static final Logger logger = LoggerFactory.getLogger(Acceptor.class);
     /*处理accept的选择器*/
     private final Selector selector;
     /*
@@ -26,7 +27,7 @@ public class Acceptor extends Thread implements Lifecycle {
     * 并注册到该selecrot
     * */
     private final ReactorPool reactorPool;
-    private ServerSocketChannel serverSocketChannel;
+    private final ServerSocketChannel serverSocketChannel;
 
     public Acceptor(String name, InetSocketAddress bindSocketAddress, ReactorPool reactorPool) throws IOException {
         super(name);
@@ -34,18 +35,18 @@ public class Acceptor extends Thread implements Lifecycle {
         this.reactorPool = reactorPool;
         this.serverSocketChannel = (ServerSocketChannel) ServerSocketChannel.open().bind(bindSocketAddress).configureBlocking(false);
         this.serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
-        logger.info("started server,bing socket address ={},port={}", bindSocketAddress.getHostName(), bindSocketAddress.getPort());
+        log.info("started server,bing socket address ={},port={}", bindSocketAddress.getHostName(), bindSocketAddress.getPort());
     }
 
     @Override
     public void startup() throws Exception {
         this.start();
-        logger.info("accept {} started success",this.getName());
+        log.info("accept {} started success",this.getName());
     }
 
     @Override
     public void shutdown() throws Exception {
-        logger.info("accept {} shutdowning",this.getName());
+        log.info("accept {} shutdowning",this.getName());
         this.selector.close();
         this.serverSocketChannel.close();
 
@@ -64,7 +65,7 @@ public class Acceptor extends Thread implements Lifecycle {
                     selectionKeys.clear();
                 }
             } catch (IOException e) {
-                logger.warn(e.getMessage(), e);
+                log.warn(e.getMessage(), e);
             }
         }
     }
@@ -79,7 +80,7 @@ public class Acceptor extends Thread implements Lifecycle {
                 reactorPool.register((SocketChannel) ((ServerSocketChannel) key.channel()).accept().configureBlocking(false));
                 else key.cancel();
             } catch (IOException e) {
-               logger.error(e.getMessage(),e);
+               log.error(e.getMessage(),e);
             }
 
     }

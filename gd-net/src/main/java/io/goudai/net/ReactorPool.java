@@ -3,8 +3,8 @@ package io.goudai.net;
 import io.goudai.net.common.Lifecycle;
 import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.factory.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -15,23 +15,25 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by freeman on 2016/1/8.
  */
+@Slf4j
+@Builder
 public class ReactorPool implements Lifecycle {
 
-    private static final Logger logger = LoggerFactory.getLogger(ReactorPool.class);
 
     private final Reactor[] reactors;
     private final int reactorCount;
-    private AtomicInteger selectorIndex = new AtomicInteger();
+    private final static AtomicInteger selectorIndex = new AtomicInteger();
 
 
     public ReactorPool(int reactorCount,SessionFactory sessionFactory) throws IOException {
         if (reactorCount <= 0) {
             reactorCount = 1;
-            logger.warn("reactor less than 1,using auto reactors 1");
+            log.warn("reactor less than 1,using auto reactors 1");
         }
         this.reactors = new Reactor[reactorCount];
         for (int i = 0; i < this.reactors.length; i++) {
             this.reactors[i] = new Reactor("reactor--" + i,sessionFactory);
+            log.info("init reactor pool [{}] = [{}]",i,this.reactors[i]);
         }
         this.reactorCount = reactorCount;
     }

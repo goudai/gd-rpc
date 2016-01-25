@@ -28,8 +28,8 @@ public class Client {
                     System.out.println("client received on server ");
                     System.out.println(request);
                 })
-                .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory()))
-                .init();
+                .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory()));
+
     }
 
     public static void main(String[] args) throws Exception {

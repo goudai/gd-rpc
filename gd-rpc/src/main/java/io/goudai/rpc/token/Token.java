@@ -2,6 +2,7 @@ package io.goudai.rpc.token;
 
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
+import lombok.Getter;
 
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -10,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by freeman on 2016/1/17.
  */
+@Getter
 public class Token {
     private String id;
     private CountDownLatch latch = new CountDownLatch(1);
@@ -24,19 +26,6 @@ public class Token {
         }
         this.request = request;
     }
-
-    public String getId() {
-        return id;
-    }
-
-    public Request request() {
-        return this.request;
-    }
-
-    public Response response() {
-        return this.response;
-    }
-
     public void notifyResponse(Response response) {
         this.response = response;
         this.latch.countDown();

@@ -2,6 +2,7 @@ package io.goudai.net.session;
 
 import io.goudai.net.buffer.IoBuffer;
 import io.goudai.net.session.exception.ConnectedTimeoutException;
+import lombok.Data;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by freeman on 2016/1/11.
  */
+@Data
 public abstract class AbstractSession {
     protected String id;
     /*具体的server 于 client之间建立的真实通道*/
@@ -36,7 +38,6 @@ public abstract class AbstractSession {
         this.socketChannel = socketChannel;
         this.key = key;
         this.createdTime = new Date();
-
     }
 
 
@@ -77,69 +78,7 @@ public abstract class AbstractSession {
 
 
 
-    public String getId() {
-        return id;
-    }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public SocketChannel getSocketChannel() {
-        return socketChannel;
-    }
-
-    public void setSocketChannel(SocketChannel socketChannel) {
-        this.socketChannel = socketChannel;
-    }
-
-    public SelectionKey getKey() {
-        return key;
-    }
-
-    public void setKey(SelectionKey key) {
-        this.key = key;
-    }
-
-    public IoBuffer getReadBuffer() {
-        return readBuffer;
-    }
-
-    public void setReadBuffer(IoBuffer readBuffer) {
-        this.readBuffer = readBuffer;
-    }
-
-    public Queue<ByteBuffer> getWriteBufferQueue() {
-        return writeBufferQueue;
-    }
-
-    public void setWriteBufferQueue(Queue<ByteBuffer> writeBufferQueue) {
-        this.writeBufferQueue = writeBufferQueue;
-    }
-
-    public Date getCreatedTime() {
-        return createdTime;
-    }
-
-    public void setCreatedTime(Date createdTime) {
-        this.createdTime = createdTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public CountDownLatch getConnectLatch() {
-        return connectLatch;
-    }
-
-    public void setConnectLatch(CountDownLatch connectLatch) {
-        this.connectLatch = connectLatch;
-    }
 
 
 }

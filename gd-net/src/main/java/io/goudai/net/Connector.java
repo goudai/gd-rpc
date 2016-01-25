@@ -4,6 +4,7 @@ import io.goudai.net.common.Lifecycle;
 import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.Session;
 import io.goudai.net.session.factory.SessionFactory;
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Created by freeman on 2016/1/8.
  */
+@Data
 public class Connector extends Thread implements Lifecycle{
     private static Logger logger = LoggerFactory.getLogger(Connector.class);
 

@@ -6,5 +6,4 @@ public interface Encoder<T> {
 
     ByteBuffer encode(T response);
 
-
 }

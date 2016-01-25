@@ -2,19 +2,18 @@ package io.goudai.net.handler.codec;
 
 import io.goudai.net.buffer.IoBuffer;
 import io.goudai.net.handler.serializer.Serializer;
+import lombok.RequiredArgsConstructor;
 
 import java.nio.ByteBuffer;
 
 /**
- * Created by Administrator on 2016/1/14.
+ * Created by freeman on 2016/1/14.
  */
+@RequiredArgsConstructor
 public class DefaultEncoder<T> implements Encoder<T> {
 
-    private Serializer serializer;
+    private final Serializer serializer;
 
-    public DefaultEncoder(Serializer serializer) {
-        this.serializer = serializer;
-    }
 
     private final int BODY_LEN = 4;
     @Override
