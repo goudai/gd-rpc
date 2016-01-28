@@ -3,6 +3,7 @@ package io.goudai.net.session;
 import io.goudai.net.buffer.BufferPool;
 import io.goudai.net.buffer.IoBuffer;
 import io.goudai.net.context.Context;
+import io.goudai.net.context.ContextHolder;
 import io.goudai.net.handler.ChannelHandler;
 import io.goudai.net.handler.codec.Decoder;
 import io.goudai.net.handler.codec.Encoder;
@@ -28,8 +29,9 @@ public class Session<REQ, RESP> extends AbstractSession {
     private final ExecutorService executorService;
     AtomicBoolean isEnableWriteEvent = new AtomicBoolean(false);
 
-    public Session(SocketChannel socketChannel, SelectionKey key, Context<REQ, RESP> context) {
+    public Session(SocketChannel socketChannel, SelectionKey key) {
         super(socketChannel, key);
+        Context<REQ, RESP> context = ContextHolder.getContext();
         this.decoder = context.getDecoder();
         this.channelHandler = context.getChannelHandler();
         this.encoder = context.getEncoder();

@@ -46,7 +46,7 @@ public class ProxyServiceClientTest {
         connector.startup();
         Invoker singleInvoker = new SingleInvoker(() -> {
             try {
-                return new RequestSession(new InetSocketAddress(8888), connector, sessionFactory);
+                return new RequestSession(new InetSocketAddress(9999), connector, sessionFactory);
             } catch (Exception e) {
                 throw new RpcException(e.getMessage(), e);
             }

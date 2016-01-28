@@ -8,8 +8,7 @@ import io.goudai.net.handler.serializer.Serializer;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ExecutorService;
 
@@ -19,15 +18,16 @@ import java.util.concurrent.ExecutorService;
 @Builder
 @Getter
 @ToString
+@Slf4j
 public class Context<REQ, RESP> {
 
-    private final static Logger logger = LoggerFactory.getLogger(Context.class);
 
     private final Decoder<REQ> decoder;
     private final Encoder<RESP> encoder;
-    private ChannelHandler channelHandler;
+    private final ChannelHandler channelHandler;
     private final Serializer serializer;
     private final ExecutorService executorService;
+
     public void init() {
         Assert.assertNotNull("decoder must be not null", decoder);
         Assert.assertNotNull("encoder ", encoder);
@@ -35,7 +35,7 @@ public class Context<REQ, RESP> {
         Assert.assertNotNull("executorService ", executorService);
         Assert.assertNotNull("channelInHandler ", channelHandler);
         ContextHolder.registed(this);
-        logger.debug("init context success !! \r\n{}", this);
+        log.debug("init context success !! \r\n{}", this);
     }
 
 

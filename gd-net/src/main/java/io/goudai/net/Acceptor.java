@@ -37,16 +37,20 @@ public class Acceptor extends Thread implements Lifecycle {
     }
 
     @Override
-    public void startup() throws Exception {
+    public void startup() {
         this.start();
         log.info("accept {} started success",this.getName());
     }
 
     @Override
-    public void shutdown() throws Exception {
+    public void shutdown() {
         log.info("accept {} shutdowning",this.getName());
-        this.selector.close();
-        this.serverSocketChannel.close();
+        try {
+            this.selector.close();
+            this.serverSocketChannel.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 

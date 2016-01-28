@@ -43,15 +43,19 @@ public class Reactor extends Thread implements Lifecycle {
     }
 
     @Override
-    public void startup() throws Exception {
+    public void startup()  {
         this.start();
         log.info("reactor {} started success", this.getName());
     }
 
     @Override
-    public void shutdown() throws Exception {
-        this.selector.close();
-        this.interrupt();
+    public void shutdown()  {
+        try {
+            this.selector.close();
+            this.interrupt();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void register(SocketChannel socketChannel, int ops, AbstractSession session) throws ClosedChannelException {

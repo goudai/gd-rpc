@@ -6,7 +6,7 @@ package io.goudai.net.context;
 public class ContextHolder {
     static Context context;
 
-    public static Context<Object, Object> getContext() {
+    public static Context getContext() {
         return ContextHolder.context;
     }
 

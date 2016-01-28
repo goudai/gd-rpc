@@ -14,13 +14,15 @@ import java.util.concurrent.TimeUnit;
 @Getter
 public class Token {
     private String id;
-    private CountDownLatch latch = new CountDownLatch(1);
     private Request request;
     private Response response;
+    private long timeout;
+    private CountDownLatch latch = new CountDownLatch(1);
 
 
     public Token(Request request, long timeout) {
         this.id = UUID.randomUUID().toString();
+        this.timeout = timeout;
         if (request != null) {
             request.setId(this.id);
         }

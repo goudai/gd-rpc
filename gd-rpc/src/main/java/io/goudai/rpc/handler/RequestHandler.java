@@ -2,6 +2,7 @@ package io.goudai.rpc.handler;
 
 import io.goudai.net.handler.ChannelHandler;
 import io.goudai.net.session.AbstractSession;
+import io.goudai.rpc.exception.ServiceNotRegistryException;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -23,18 +24,14 @@ public class RequestHandler implements ChannelHandler {
     @Override
     public void received(AbstractSession session, Object obj) {
 
-        if(obj instanceof Request){
+        if (obj instanceof Request) {
             Request request = (Request) obj;
             Response response = Response.builder().id(request.getId()).build();
             try {
                 response.setResult(findMethod(request).invoke(services.get(request.getService()), request.getParams()));
-            }catch (NullPointerException e){
-                log.error(e.getMessage(), e);
-                response.setException(e);
             } catch (Throwable e) {
-                log.error(e.getMessage(), e);
                 response.setException(e);
-            }finally {
+            } finally {
                 session.write(response);
             }
         }
@@ -43,9 +40,16 @@ public class RequestHandler implements ChannelHandler {
     }
 
     private Method findMethod(Request request) throws NoSuchMethodException {
-        String key = request.getService() + request.getMethodName();
-        if (!this.methodConcurrentHashMap.contains(key))
-            this.methodConcurrentHashMap.put(key, services.get(request.getService()).getClass().getMethod(request.getMethodName(), request.getPatamType()));
+        String key = request.getService() + "#" + request.getMethodName();
+        if (!this.methodConcurrentHashMap.contains(key)) {
+            String service = request.getService();
+            String methodName = request.getMethodName();
+            Class<?>[] patamType = request.getPatamType();
+            Object o = services.get(service);
+            if(o == null) throw new ServiceNotRegistryException("No services [ "+request.getService()+" ]");
+            Method method = o.getClass().getMethod(methodName, patamType);
+            this.methodConcurrentHashMap.put(key, method);
+        }
         return this.methodConcurrentHashMap.get(key);
     }
 

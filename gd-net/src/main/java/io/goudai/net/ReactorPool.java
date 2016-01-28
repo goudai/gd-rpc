@@ -37,14 +37,14 @@ public class ReactorPool implements Lifecycle {
     }
 
     @Override
-    public void startup() throws Exception {
+    public void startup()  {
         for (Lifecycle life : this.reactors) {
             life.startup();
         }
     }
 
     @Override
-    public void shutdown() throws Exception {
+    public void shutdown()  {
         for (Lifecycle life : this.reactors) {
             life.shutdown();
         }

@@ -9,11 +9,11 @@ public interface Lifecycle {
      * 启动事件处理器
      * @throws Exception
      */
-    void startup() throws Exception;
+    void startup();
 
     /**
      * 关闭时间处理器并且清理资源
      * @throws Exception
      */
-    void shutdown() throws Exception;
+    void shutdown();
 }

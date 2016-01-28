@@ -1,6 +1,5 @@
 package io.goudai.net.session.factory;
 
-import io.goudai.net.context.ContextHolder;
 import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.Session;
 
@@ -15,6 +14,7 @@ public class DefaultSessionFactory implements SessionFactory {
 
     @Override
     public AbstractSession make(SocketChannel socketChannel, SelectionKey key) {
-        return new Session<>(socketChannel,key, ContextHolder.getContext());
+        return new Session<>(socketChannel, key);
+
     }
 }

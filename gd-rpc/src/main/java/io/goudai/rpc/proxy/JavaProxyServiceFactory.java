@@ -20,6 +20,8 @@ public class JavaProxyServiceFactory implements ProxyServiceFactory {
     /*将实际的调用委托到invoker.invoke上进行处理 的*/
     private final Invoker invoker;
 
+
+
     public <T> T createServiceProxy(Class<T> interfaceClass) throws RpcException {
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, (proxy, method, args) -> {
             Request request = makeRequest(interfaceClass, method, args);
@@ -29,7 +31,8 @@ public class JavaProxyServiceFactory implements ProxyServiceFactory {
         });
     }
 
-    public <T> Request makeRequest(Class<T> klass, Method method, Object[] args) {
+
+    private  <T> Request makeRequest(Class<T> klass, Method method, Object[] args) {
         return Request.builder()
                 .id(UUID.randomUUID().toString())
                 .service(klass.getName())
