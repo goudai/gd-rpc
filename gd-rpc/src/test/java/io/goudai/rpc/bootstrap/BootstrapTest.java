@@ -16,7 +16,7 @@ import io.goudai.rpc.model.Response;
 import java.util.concurrent.Executors;
 
 /**
- * Created by vip on 2016/1/28.
+ * Created by freeman on 2016/1/28.
  */
 public class BootstrapTest {
     static {
