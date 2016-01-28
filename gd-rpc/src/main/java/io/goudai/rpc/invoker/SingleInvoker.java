@@ -19,6 +19,8 @@ public class SingleInvoker implements Invoker {
         this.requestSessionPool = new JavaPool<>(requestSessionObjectFactory, poolConfig);
     }
 
+
+
     @Override
     public String name() {
         return "SingleInvoker";
@@ -32,7 +34,6 @@ public class SingleInvoker implements Invoker {
             requestSession = this.requestSessionPool.borrowObject();
             response = requestSession.invoker(request);
         } catch (Exception e) {
-            e.printStackTrace();
             response.setException(e);
         } finally {
             this.requestSessionPool.returnObject(requestSession);

@@ -35,13 +35,13 @@ public class ServerBootstrapTest {
     public static void main(String[] args) throws Exception {
         // 2 init rpc server
         ServerBootstrap serverBootstrap = new ServerBootstrap(9999);
-        //3 registry services..
-        serverBootstrap.registry(UserService.class,new SimpleUserService())
-//        .registry()
-        ;
-
+        //3 registry shutdown clean hook
+        Runtime.getRuntime().addShutdownHook(new Thread(serverBootstrap::shutdown));
+        //4 registry services..
+        serverBootstrap.registry(UserService.class, new SimpleUserService());
+        //5 started rpc server and await thread
         serverBootstrap.startup();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(serverBootstrap::shutdown));
+
     }
 }

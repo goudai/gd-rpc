@@ -5,7 +5,6 @@ import io.goudai.net.session.AbstractSession;
 import io.goudai.rpc.exception.ServiceNotRegistryException;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
-import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,8 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by freeman on 2016/1/17.
  * 处理客户端发送的请求
  */
-@Slf4j
-public class RequestHandler implements ChannelHandler {
+public class RequestHandler implements ChannelHandler, ServiceRegistryHandler {
     /*换成接口*/
     public final ConcurrentHashMap<String, Object> services = new ConcurrentHashMap<>();
     /*缓存方法*/
@@ -46,14 +44,16 @@ public class RequestHandler implements ChannelHandler {
             String methodName = request.getMethodName();
             Class<?>[] patamType = request.getPatamType();
             Object o = services.get(service);
-            if(o == null) throw new ServiceNotRegistryException("No services [ "+request.getService()+" ]");
+            if (o == null) throw new ServiceNotRegistryException("No services [ " + request.getService() + " ]");
             Method method = o.getClass().getMethod(methodName, patamType);
             this.methodConcurrentHashMap.put(key, method);
         }
         return this.methodConcurrentHashMap.get(key);
     }
 
-    public void service(Class<?> interfaceClass, Object service) {
-        this.services.putIfAbsent(interfaceClass.getName(), service);
+
+    @Override
+    public void registry(Class<?> interClass, Object service) {
+        this.services.putIfAbsent(interClass.getName(), service);
     }
 }

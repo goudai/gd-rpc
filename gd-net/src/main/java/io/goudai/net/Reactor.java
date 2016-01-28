@@ -38,6 +38,7 @@ public class Reactor extends Thread implements Lifecycle {
 
     public Reactor(String name, SessionFactory sessionFactory) throws IOException {
         super(name);
+        this.setDaemon(true);
         this.selector = Selector.open();
         this.sessionFactory = sessionFactory;
     }
@@ -67,12 +68,15 @@ public class Reactor extends Thread implements Lifecycle {
     public void run() {
         while (!interrupted()) {
             doSelect();
-            Set<SelectionKey> selectionKeys = this.selector.selectedKeys();
-            try {
-                selectionKeys.forEach(this::react);
-            } finally {
-                selectionKeys.clear();
-            }
+            if(this.selector.isOpen()){
+                Set<SelectionKey> selectionKeys = this.selector.selectedKeys();
+                try {
+                    selectionKeys.forEach(this::react);
+                } finally {
+                    selectionKeys.clear();
+                }
+            }else return;
+
         }
 
     }

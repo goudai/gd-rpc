@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
  */
 public class BootstrapTest {
     static {
+        //1 init
         Serializer serializer = new JavaSerializer();
         Context.<Request, Response>builder()
                 .decoder(new DefaultDecoder<>(serializer))
@@ -32,15 +33,18 @@ public class BootstrapTest {
     }
 
     public static void main(String[] args) throws Exception {
+        //2 create client
         Bootstrap bootstrap = new Bootstrap("localhost", 9999);
-
+        //3 started client
         bootstrap.startup();
-
+        //4 get proxy service
         UserService service = bootstrap.getService(UserService.class);
+        //5 remote invoker
         User add = service.add(new User());
+        // out result
         System.out.println(add);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(bootstrap::shutdown));
+        //7 shutdown
+        bootstrap.shutdown();
 
     }
 }

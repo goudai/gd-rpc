@@ -31,6 +31,7 @@ public class Connector extends Thread implements Lifecycle{
 
     public Connector(String name,ReactorPool reactorPool) throws IOException {
         super(name);
+        this.setDaemon(true);
         this.reactorPool = reactorPool;
         this.selector = Selector.open();
     }
@@ -66,12 +67,15 @@ public class Connector extends Thread implements Lifecycle{
     public void run() {
         while (!interrupted()){
            doSelect();
-            Set<SelectionKey> selectionKeys = selector.selectedKeys();
-            try{
-                selectionKeys.forEach(this::connect);
-            }finally {
-                selectionKeys.clear();
-            }
+            if(this.selector.isOpen()){
+                Set<SelectionKey> selectionKeys = selector.selectedKeys();
+                try{
+                    selectionKeys.forEach(this::connect);
+                }finally {
+                    selectionKeys.clear();
+                }
+            }else return;
+
         }
     }
 

@@ -34,7 +34,7 @@ public class ProxyServiceServerTest {
     }
     public static void main(String[] args) throws Exception {
         RequestHandler handler = (RequestHandler) ContextHolder.getContext().getChannelHandler();
-        handler.service(UserService.class,new SimpleUserService());
+        handler.registry(UserService.class,new SimpleUserService());
         DefaultSessionFactory sessionFactory = new DefaultSessionFactory();
         ReactorPool reactorPool = new ReactorPool(1, sessionFactory);
         reactorPool.startup();

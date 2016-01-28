@@ -29,6 +29,7 @@ public class Acceptor extends Thread implements Lifecycle {
 
     public Acceptor(String name, InetSocketAddress bindSocketAddress, ReactorPool reactorPool) throws IOException {
         super(name);
+        this.setDaemon(true);
         this.selector = Selector.open();
         this.reactorPool = reactorPool;
         this.serverSocketChannel = (ServerSocketChannel) ServerSocketChannel.open().bind(bindSocketAddress).configureBlocking(false);

@@ -20,13 +20,12 @@ import java.net.InetSocketAddress;
 public class Bootstrap implements Lifecycle {
     private Connector connector;
     private ReactorPool reactorPool;
-    private ProxyServiceFactory proxyServiceFactory;
     private String serverIp;
     private int serverPort;
+    private ProxyServiceFactory proxyServiceFactory;
     private final DefaultSessionFactory sessionFactory = new DefaultSessionFactory();
 
     public Bootstrap(String serverIp, int serverPort) throws IOException {
-
         reactorPool = new ReactorPool(1, sessionFactory);
         connector = new Connector("goudai-rpc-connector-thread", reactorPool);
         this.serverIp = serverIp;

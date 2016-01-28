@@ -22,11 +22,11 @@ import java.util.concurrent.ExecutorService;
 public class Context<REQ, RESP> {
 
 
-    private final Decoder<REQ> decoder;
-    private final Encoder<RESP> encoder;
-    private final ChannelHandler channelHandler;
-    private final Serializer serializer;
-    private final ExecutorService executorService;
+    protected final Decoder<REQ> decoder;
+    protected final Encoder<RESP> encoder;
+    protected final ChannelHandler channelHandler;
+    protected final Serializer serializer;
+    protected final ExecutorService executorService;
 
     public void init() {
         Assert.assertNotNull("decoder must be not null", decoder);
