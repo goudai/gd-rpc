@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
  * Created by freeman on 2016/1/28.
  */
 // JVM参数  -Xloggc:server.log  -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:-UseLargePagesIndividualAllocation  -XX:+UseParallelGC
-public class PrefServerBootstrapTest {
+public class PerfServerBootstrapTest {
     static {
         //1 init context
         Serializer serializer = new JavaSerializer();

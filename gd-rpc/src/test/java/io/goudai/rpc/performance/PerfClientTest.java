@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Created by Administrator on 2016/1/30.
  */
-public class PrefClientTest {
+public class PerfClientTest {
     static {
         Serializer serializer = new JavaSerializer();
         Context.<Request, Response>builder()
