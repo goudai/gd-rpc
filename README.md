@@ -2,6 +2,10 @@
 
 ![Nio 架构图](https://raw.githubusercontent.com/goudai/gd-rpc/master/net-work.png)
 
+### 单机的性能测试
+        https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PrefClientTest.java
+        https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PrefServerBootstrapTest.java
+
 ### 单机RPC调用
 #### rpc server
         public class ServerBootstrapTest {
