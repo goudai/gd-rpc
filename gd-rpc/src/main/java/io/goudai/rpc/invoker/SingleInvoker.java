@@ -3,7 +3,7 @@ package io.goudai.rpc.invoker;
 import io.goudai.commons.pool.Pool;
 import io.goudai.commons.pool.PoolConfig;
 import io.goudai.commons.pool.factory.ObjectFactory;
-import io.goudai.commons.pool.impl.JavaPool;
+import io.goudai.commons.pool.impl.Commons2Pool;
 import io.goudai.rpc.exception.RpcException;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
@@ -16,7 +16,7 @@ public class SingleInvoker implements Invoker {
     private Pool<RequestSession> requestSessionPool;
 
     public SingleInvoker(ObjectFactory<RequestSession> requestSessionObjectFactory, PoolConfig poolConfig) {
-        this.requestSessionPool = new JavaPool<>(requestSessionObjectFactory, poolConfig);
+        this.requestSessionPool = new Commons2Pool<>(requestSessionObjectFactory);
     }
 
 
@@ -32,7 +32,9 @@ public class SingleInvoker implements Invoker {
         RequestSession requestSession = null;
         try {
             requestSession = this.requestSessionPool.borrowObject();
+            if (requestSession == null) System.out.println("request is null ");
             response = requestSession.invoker(request);
+            if(response == null) System.out.println("response is null !");
         } catch (Exception e) {
             response.setException(e);
         } finally {

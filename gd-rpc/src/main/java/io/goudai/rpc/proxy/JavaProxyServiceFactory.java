@@ -25,7 +25,9 @@ public class JavaProxyServiceFactory implements ProxyServiceFactory {
     public <T> T createServiceProxy(Class<T> interfaceClass) throws RpcException {
         return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, (proxy, method, args) -> {
             Request request = makeRequest(interfaceClass, method, args);
+
             Response response = invoker.invoke(request);
+            if(response == null ) throw  new NullPointerException("response is null ");
             if (response.getException() != null) throw response.getException();
             return response.getResult();
         });

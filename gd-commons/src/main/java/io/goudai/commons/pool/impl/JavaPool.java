@@ -43,5 +43,6 @@ public class JavaPool<T> implements Pool<T> {
     @Override
     public void returnObject(T t) {
         this.pool.offer(t);
+        useCount.decrementAndGet();
     }
 }

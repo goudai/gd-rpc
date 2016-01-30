@@ -1,4 +1,4 @@
-package io.goudai.rpc.bootstrap;
+package io.goudai.rpc.performance;
 
 import io.goudai.commons.factory.NamedThreadFactory;
 import io.goudai.net.context.Context;
@@ -18,7 +18,8 @@ import java.util.concurrent.Executors;
 /**
  * Created by freeman on 2016/1/28.
  */
-public class ServerBootstrapTest {
+// JVM参数  -Xloggc:server.log  -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:-UseLargePagesIndividualAllocation  -XX:+UseParallelGC
+public class PrefServerBootstrapTest {
     static {
         //1 init context
         Serializer serializer = new JavaSerializer();
@@ -33,7 +34,7 @@ public class ServerBootstrapTest {
     }
 
     public static void main(String[] args) throws Exception {
-        // 2 init rpc server
+        // 2 init rpc server 
         ServerBootstrap serverBootstrap = new ServerBootstrap(2,9999);
         //3 registry shutdown clean hook
         Runtime.getRuntime().addShutdownHook(new Thread(serverBootstrap::shutdown));

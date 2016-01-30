@@ -25,8 +25,8 @@ public class Bootstrap implements Lifecycle {
     private ProxyServiceFactory proxyServiceFactory;
     private final DefaultSessionFactory sessionFactory = new DefaultSessionFactory();
 
-    public Bootstrap(String serverIp, int serverPort) throws IOException {
-        reactorPool = new ReactorPool(1, sessionFactory);
+    public Bootstrap(String serverIp, int serverPort,int reactors) throws IOException {
+        reactorPool = new ReactorPool(reactors, sessionFactory);
         connector = new Connector("goudai-rpc-connector-thread", reactorPool);
         this.serverIp = serverIp;
         this.serverPort = serverPort;
@@ -47,7 +47,7 @@ public class Bootstrap implements Lifecycle {
             } catch (Exception e) {
                 throw new RpcException(e.getMessage(), e);
             }
-        }, PoolConfig.builder().max(30).init(30).build()));
+        }, PoolConfig.builder().max(600).init(600).build()));
     }
 
     @Override

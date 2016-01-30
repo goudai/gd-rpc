@@ -26,14 +26,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class Reactor extends Thread implements Lifecycle {
 
-    /*处理读写事件的selector*/
-    private final Selector selector;
-    /*由于channel注册不能进行跨线程，所以使用一个队列来进行异步的注册*/
-    private Queue<AsyncRegistrySocketChannel> asyncRegistrySocketChannels = new ConcurrentLinkedQueue<>();
     /*唤醒标记用于减少唤醒次数*/
     private final static AtomicBoolean wakeup = new AtomicBoolean(false);
+    /*处理读写事件的selector*/
+    private final Selector selector;
     /*负责构造具体的session*/
     private final SessionFactory sessionFactory;
+    /*由于channel注册不能进行跨线程，所以使用一个队列来进行异步的注册*/
+    private Queue<AsyncRegistrySocketChannel> asyncRegistrySocketChannels = new ConcurrentLinkedQueue<>();
 
 
     public Reactor(String name, SessionFactory sessionFactory) throws IOException {
@@ -44,13 +44,13 @@ public class Reactor extends Thread implements Lifecycle {
     }
 
     @Override
-    public void startup()  {
+    public void startup() {
         this.start();
         log.info("reactor {} started success", this.getName());
     }
 
     @Override
-    public void shutdown()  {
+    public void shutdown() {
         try {
             this.selector.close();
             this.interrupt();
@@ -68,14 +68,14 @@ public class Reactor extends Thread implements Lifecycle {
     public void run() {
         while (!interrupted()) {
             doSelect();
-            if(this.selector.isOpen()){
+            if (this.selector.isOpen()) {
                 Set<SelectionKey> selectionKeys = this.selector.selectedKeys();
                 try {
                     selectionKeys.forEach(this::react);
                 } finally {
                     selectionKeys.clear();
                 }
-            }else return;
+            } else return;
 
         }
 
@@ -95,14 +95,10 @@ public class Reactor extends Thread implements Lifecycle {
                 }
             }
         } catch (Exception e) {
-            try {
-                key.channel().close();
-            } catch (IOException e1) {
-//                ig
-            }
             key.cancel();
-
-            log.warn(e.getMessage(),e);
+            if (e.getMessage().contains("远程主机强迫关闭了一个现有的连接")) {
+            } else
+                log.warn(e.getMessage(), e);
 
         }
     }

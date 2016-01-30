@@ -34,7 +34,7 @@ public class BootstrapTest {
 
     public static void main(String[] args) throws Exception {
         //2 create client
-        Bootstrap bootstrap = new Bootstrap("localhost", 9999);
+        Bootstrap bootstrap = new Bootstrap("localhost", 9999,1);
         //3 started client
         bootstrap.startup();
         //4 get proxy service

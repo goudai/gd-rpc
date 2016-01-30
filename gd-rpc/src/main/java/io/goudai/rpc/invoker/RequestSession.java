@@ -34,7 +34,7 @@ public class RequestSession {
         try {
             this.session.write(request);
             if (!token.await(timeout, TimeUnit.MILLISECONDS)) {
-                throw new RuntimeException("time out");
+                throw new RuntimeException("request time out !!");
             }
             return token.getResponse();
         } catch (Exception e) {
