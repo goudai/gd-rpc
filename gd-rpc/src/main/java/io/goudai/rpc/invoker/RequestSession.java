@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class RequestSession {
 
     private Session session;
-    private long timeout = 1000;
+    private long timeout = 5000;
     private Connector connector;
     private InetSocketAddress remoteAddress;
 

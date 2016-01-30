@@ -37,7 +37,7 @@ public class PrefClientTest {
         final int threadCount = 100;
         final AtomicLong counter = new AtomicLong(0);
         Bootstrap[] bootstraps = new Bootstrap[threadCount];
-        Bootstrap bootstrap =  new Bootstrap("localhost", 9999,1);
+        Bootstrap bootstrap =  new Bootstrap("localhost", 9999,2);
         bootstrap.startup();
 
         System.out.println("init success");
