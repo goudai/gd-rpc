@@ -5,7 +5,7 @@
 ### 单机的性能测试
 1.[PrefServerBootstrapTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PrefServerBootstrapTest.java)<br />
 2.[PrefClientTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PrefClientTest.java)<br />
-
+![QPS](https://raw.githubusercontent.com/goudai/gd-rpc/master/qps.png)
 
 
 ### 单机RPC调用
