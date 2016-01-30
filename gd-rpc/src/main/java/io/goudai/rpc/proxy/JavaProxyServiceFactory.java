@@ -7,6 +7,7 @@ import io.goudai.rpc.model.Response;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
@@ -21,20 +22,25 @@ public class JavaProxyServiceFactory implements ProxyServiceFactory {
     private final Invoker invoker;
 
 
-
     public <T> T createServiceProxy(Class<T> interfaceClass) throws RpcException {
-        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, (proxy, method, args) -> {
-            Request request = makeRequest(interfaceClass, method, args);
-
-            Response response = invoker.invoke(request);
-            if(response == null ) throw  new NullPointerException("response is null ");
-            if (response.getException() != null) throw response.getException();
-            return response.getResult();
+        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                Request request = makeRequest(interfaceClass, method, args);
+                if (invoker == null){
+                    System.out.println("invoker is null ");
+                    return null;
+                }
+                Response response = invoker.invoke(request);
+                if (response == null) throw new NullPointerException("response ");
+                if (response.getException() != null) throw response.getException();
+                return response.getResult();
+            }
         });
     }
 
 
-    private  <T> Request makeRequest(Class<T> klass, Method method, Object[] args) {
+    private <T> Request makeRequest(Class<T> klass, Method method, Object[] args) {
         return Request.builder()
                 .id(UUID.randomUUID().toString())
                 .service(klass.getName())
