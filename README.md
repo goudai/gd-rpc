@@ -4,7 +4,7 @@
 
 ### 单机的性能测试
 1.[PrefServerBootstrapTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PrefServerBootstrapTest.java)<br />
-1.[PrefClientTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PrefClientTest.java)<br />
+2.[PrefClientTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PrefClientTest.java)<br />
 
 
 
