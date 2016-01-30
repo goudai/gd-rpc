@@ -74,7 +74,6 @@ class Task extends Thread {
     public void run() {
         for (int i = 0; i < N; i++) {
             try {
-                if(userService == null) System.out.println(userService == null);
                userService.add(new User());
                 counter.incrementAndGet();
             } catch (Exception e) {

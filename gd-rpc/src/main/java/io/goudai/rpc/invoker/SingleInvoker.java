@@ -27,15 +27,12 @@ public class SingleInvoker implements Invoker {
 
     @Override
     public Response invoke(Request request) throws RpcException {
-        Response response = Response.builder().build();
+        Response response = Response.builder().id(request.getId()).build();
         RequestSession requestSession = null;
         try {
             requestSession = this.requestSessionPool.borrowObject();
-            if (requestSession == null) System.out.println("request is null ");
             response = requestSession.invoker(request);
-            if (response == null) System.out.println("response is null !");
         }  catch (Exception e) {
-            response.setId(request.getId());
             response.setException(e);
         } finally {
             this.requestSessionPool.returnObject(requestSession);
