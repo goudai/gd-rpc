@@ -3,8 +3,8 @@
 ![Nio 架构图](https://raw.githubusercontent.com/goudai/gd-rpc/master/net-work.png)
 
 ### 单机的性能测试
-1.[PrefServerBootstrapTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PrefServerBootstrapTest.java)<br />
-2.[PrefClientTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PrefClientTest.java)<br />
+1.[PerfServerBootstrapTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PrefServerBootstrapTest.java)<br />
+2.[PerfClientTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PrefClientTest.java)<br />
 ![QPS](https://raw.githubusercontent.com/goudai/gd-rpc/master/qps.png)
 
 
