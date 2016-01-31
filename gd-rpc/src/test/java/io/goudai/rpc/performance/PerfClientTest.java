@@ -45,8 +45,9 @@ public class PerfClientTest {
         System.out.println("init success");
         final long startTime = System.currentTimeMillis();
         Task[] tasks = new Task[threadCount];
+            UserService service = bootstrap.getService(UserService.class);
         for (int i = 0; i < threadCount; i++) {
-            tasks[i] = new Task(bootstrap.getService(UserService.class), counter, startTime, N);
+            tasks[i] = new Task(service, counter, startTime, N);
         }
         for (Task task : tasks) {
             task.start();
