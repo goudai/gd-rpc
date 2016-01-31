@@ -19,13 +19,19 @@ public class Commons2Pool<T> implements Pool<T> {
     public Commons2Pool(ObjectFactory<T> factory) {
         this.factory = factory;
         config = new GenericObjectPoolConfig();
-        config.setMaxTotal(200);
-        config.setMaxIdle(200);
+        config.setMaxTotal(100);
+        config.setMaxIdle(100);
         this.pool = new GenericObjectPool<T>(new BasePooledObjectFactory<T>() {
             @Override
             public T create() throws Exception {
-                return factory.create();
+                return  factory.create();
             }
+
+            @Override
+            public void destroyObject(PooledObject<T> p) throws Exception {
+                factory.destroy(p.getObject());
+            }
+
             @Override
             public PooledObject<T> wrap(T t) {
                 return new DefaultPooledObject(t);
@@ -47,5 +53,10 @@ public class Commons2Pool<T> implements Pool<T> {
     @Override
     public void returnObject(T o) {
         this.pool.returnObject(o);
+    }
+
+    @Override
+    public void destroy() {
+        this.pool.close();
     }
 }

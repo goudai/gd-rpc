@@ -28,7 +28,7 @@ public class PerfServerBootstrapTest {
                 .encoder(new DefaultEncoder<>(serializer))
                 .serializer(serializer)
                 .channelHandler(new RequestHandler())
-                .executorService(Executors.newFixedThreadPool(100, new NamedThreadFactory()))
+                .executorService(Executors.newFixedThreadPool(300, new NamedThreadFactory("goudai-rpc-works",true)))
                 .build()
                 .init();
     }

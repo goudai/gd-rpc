@@ -5,6 +5,8 @@ import io.goudai.net.handler.ChannelHandler;
 import io.goudai.net.handler.codec.Decoder;
 import io.goudai.net.handler.codec.Encoder;
 import io.goudai.net.handler.serializer.Serializer;
+import io.goudai.net.session.AbstractSessionListener;
+import io.goudai.net.session.SessionListener;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -27,6 +29,7 @@ public class Context<REQ, RESP> {
     protected final ChannelHandler channelHandler;
     protected final Serializer serializer;
     protected final ExecutorService executorService;
+    protected SessionListener sessionListener;
 
     public void init() {
         Assert.assertNotNull("decoder must be not null", decoder);
@@ -34,12 +37,10 @@ public class Context<REQ, RESP> {
         Assert.assertNotNull("serializer ", serializer);
         Assert.assertNotNull("executorService ", executorService);
         Assert.assertNotNull("channelInHandler ", channelHandler);
+        if (sessionListener == null) sessionListener = new AbstractSessionListener();
         ContextHolder.registed(this);
         log.debug("init context success !! \r\n{}", this);
     }
-
-
-
 
 
 }

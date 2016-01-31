@@ -6,4 +6,6 @@ package io.goudai.commons.pool.factory;
 public interface ObjectFactory<T> {
 
     T create();
+
+    void destroy(T object);
 }

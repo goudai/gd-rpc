@@ -27,7 +27,7 @@ public class BootstrapTest {
                 .encoder(new DefaultEncoder<>(serializer))
                 .serializer(serializer)
                 .channelHandler(new ResponseHandler())
-                .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory()))
+                .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory("goudai-rpc-works",true)))
                 .build()
                 .init();
     }

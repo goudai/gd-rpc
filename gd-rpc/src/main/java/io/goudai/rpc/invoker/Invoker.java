@@ -14,4 +14,6 @@ public interface Invoker  {
 
      Response invoke(Request request) throws RpcException;
 
+     void shutdown();
+
 }

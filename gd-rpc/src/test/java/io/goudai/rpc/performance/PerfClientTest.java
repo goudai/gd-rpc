@@ -10,6 +10,7 @@ import io.goudai.rpc.User;
 import io.goudai.rpc.UserService;
 import io.goudai.rpc.bootstarp.Bootstrap;
 import io.goudai.rpc.handler.ResponseHandler;
+import io.goudai.rpc.listener.RpcListener;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
 
@@ -27,14 +28,15 @@ public class PerfClientTest {
                 .encoder(new DefaultEncoder<>(serializer))
                 .serializer(serializer)
                 .channelHandler(new ResponseHandler())
-                .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory()))
+                .sessionListener(new RpcListener())
+                .executorService(Executors.newFixedThreadPool(100, new NamedThreadFactory("works",true)))
                 .build()
                 .init();
     }
     public static void main(String[] args) throws Exception {
-
+        //cont requset N * treadCount
         final long N = 1000000;
-        final int threadCount = 100;
+        final int threadCount = 50;
         final AtomicLong counter = new AtomicLong(0);
         Bootstrap[] bootstraps = new Bootstrap[threadCount];
         Bootstrap bootstrap =  new Bootstrap("localhost", 9999,2);
@@ -54,7 +56,7 @@ public class PerfClientTest {
         for (Task task : tasks) {
             task.join();
         }
-
+            bootstrap.shutdown();
     }
 }
 class Task extends Thread {
@@ -74,7 +76,7 @@ class Task extends Thread {
     public void run() {
         for (int i = 0; i < N; i++) {
             try {
-               userService.add(new User());
+                userService.add(new User());
                 counter.incrementAndGet();
             } catch (Exception e) {
                 e.printStackTrace();

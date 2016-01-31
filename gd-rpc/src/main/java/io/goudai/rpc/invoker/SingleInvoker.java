@@ -1,7 +1,6 @@
 package io.goudai.rpc.invoker;
 
 import io.goudai.commons.pool.Pool;
-import io.goudai.commons.pool.PoolConfig;
 import io.goudai.commons.pool.factory.ObjectFactory;
 import io.goudai.commons.pool.impl.Commons2Pool;
 import io.goudai.rpc.exception.RpcException;
@@ -15,11 +14,10 @@ public class SingleInvoker implements Invoker {
 
     private Pool<RequestSession> requestSessionPool;
 
-    public SingleInvoker(ObjectFactory<RequestSession> requestSessionObjectFactory, PoolConfig poolConfig) {
+    public SingleInvoker(ObjectFactory<RequestSession> requestSessionObjectFactory) {
         this.requestSessionPool = new Commons2Pool<>(requestSessionObjectFactory);
+
     }
-
-
     @Override
     public String name() {
         return "SingleInvoker";
@@ -38,6 +36,11 @@ public class SingleInvoker implements Invoker {
             this.requestSessionPool.returnObject(requestSession);
         }
         return response;
+    }
+
+    @Override
+    public void shutdown() {
+        this.requestSessionPool.destroy();
     }
 
 

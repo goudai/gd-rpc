@@ -15,11 +15,11 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by freeman on 2016/1/8.
  */
+
 public class Session<REQ, RESP> extends AbstractSession {
 
 
@@ -27,7 +27,7 @@ public class Session<REQ, RESP> extends AbstractSession {
     private final ChannelHandler channelHandler;
     private final Encoder<RESP> encoder;
     private final ExecutorService executorService;
-    AtomicBoolean isEnableWriteEvent = new AtomicBoolean(false);
+//    AtomicBoolean isEnableWriteEvent = new AtomicBoolean(false);
 
     public Session(SocketChannel socketChannel, SelectionKey key) {
         super(socketChannel, key);
@@ -58,7 +58,10 @@ public class Session<REQ, RESP> extends AbstractSession {
         List<REQ> result = new ArrayList<>();
         IoBuffer in = decoder.decode(tempBuf, result);
         this.restReadBuffer(in);
-        result.forEach(r->this.executorService.execute(() ->channelHandler.received(this, r)));
+        result.forEach(r->this.executorService.execute(() ->{
+            ContextHolder.getContext().getSessionListener().onMessage(this, r);
+            channelHandler.received(this, r);
+        }));
 
     }
 
@@ -69,7 +72,7 @@ public class Session<REQ, RESP> extends AbstractSession {
             if (buffer == null) {
                 //通道的事件写完之后取消写事件
                 key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
-                isEnableWriteEvent.compareAndSet(true, false);
+//                isEnableWriteEvent.compareAndSet(true, false);
                 return;
             }
             int write = socketChannel.write(buffer);
@@ -88,10 +91,10 @@ public class Session<REQ, RESP> extends AbstractSession {
     @Override
     public void write(Object object) {
         this.writeBufferQueue.offer(encoder.encode((RESP)object));
-        if (isEnableWriteEvent.compareAndSet(false, true)) {
+//        if (isEnableWriteEvent.compareAndSet(false, true)) {
             key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
             key.selector().wakeup();
-        }
+//        }
     }
 
     private void restReadBuffer(IoBuffer tempBuf) {

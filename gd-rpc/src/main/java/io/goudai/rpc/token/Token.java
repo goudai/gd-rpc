@@ -21,7 +21,7 @@ public class Token {
 
 
     public Token(Request request, long timeout) {
-        this.id = UUID.randomUUID().toString();
+        this.id = UUID.randomUUID().toString()+"-"+UUID.randomUUID().toString();
         this.timeout = timeout;
         if (request != null) {
             request.setId(this.id);

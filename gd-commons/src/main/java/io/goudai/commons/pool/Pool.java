@@ -9,4 +9,5 @@ public interface Pool<T> {
 
     void returnObject(T t);
 
+    void destroy();
 }

@@ -1,8 +1,8 @@
 package io.goudai.net;
 
 import io.goudai.net.common.Lifecycle;
+import io.goudai.net.context.ContextHolder;
 import io.goudai.net.session.AbstractSession;
-import io.goudai.net.session.Session;
 import io.goudai.net.session.factory.SessionFactory;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Date;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -27,13 +26,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Reactor extends Thread implements Lifecycle {
 
     /*唤醒标记用于减少唤醒次数*/
-    private final static AtomicBoolean wakeup = new AtomicBoolean(false);
+//    private final static AtomicBoolean wakeup = new AtomicBoolean(false);
     /*处理读写事件的selector*/
     private final Selector selector;
     /*负责构造具体的session*/
     private final SessionFactory sessionFactory;
     /*由于channel注册不能进行跨线程，所以使用一个队列来进行异步的注册*/
-    private Queue<AsyncRegistrySocketChannel> asyncRegistrySocketChannels = new ConcurrentLinkedQueue<>();
+    private final Queue<AsyncRegistrySocketChannel> asyncRegistrySocketChannels = new ConcurrentLinkedQueue<>();
+    /*标记是否启动*/
+    private final AtomicBoolean started = new AtomicBoolean(false);
 
 
     public Reactor(String name, SessionFactory sessionFactory) throws IOException {
@@ -45,6 +46,7 @@ public class Reactor extends Thread implements Lifecycle {
 
     @Override
     public void startup() {
+        this.started.set(true);
         this.start();
         log.info("reactor {} started success", this.getName());
     }
@@ -52,6 +54,7 @@ public class Reactor extends Thread implements Lifecycle {
     @Override
     public void shutdown() {
         try {
+            this.started.set(false);
             this.selector.close();
             this.interrupt();
         } catch (IOException e) {
@@ -66,7 +69,7 @@ public class Reactor extends Thread implements Lifecycle {
 
     @Override
     public void run() {
-        while (!interrupted()) {
+        while (started.get()) {
             doSelect();
             if (this.selector.isOpen()) {
                 Set<SelectionKey> selectionKeys = this.selector.selectedKeys();
@@ -76,16 +79,17 @@ public class Reactor extends Thread implements Lifecycle {
                     selectionKeys.clear();
                 }
             } else return;
-
         }
+
 
     }
 
     private void react(SelectionKey key) {
+        AbstractSession session = null;
         try {
             if (key.isValid()) {
-                Session session = (Session) key.attachment();
-                session.setUpdateTime(new Date());
+                session = (AbstractSession) key.attachment();
+                session.updateTime();
                 if (key.isReadable()) {
                     session.read();
                 } else if (key.isWritable()) {
@@ -95,17 +99,21 @@ public class Reactor extends Thread implements Lifecycle {
                 }
             }
         } catch (Exception e) {
-            key.cancel();
-            if (e.getMessage().contains("远程主机强迫关闭了一个现有的连接")) {
-            } else
-                log.warn(e.getMessage(), e);
-
+            try {
+                key.cancel();
+                key.channel().close();
+            } catch (IOException e1) {
+                //ig
+            }
+            if (session != null) {
+                ContextHolder.getContext().getSessionListener().onException(session, e);
+            }
         }
     }
 
     private void doSelect() {
         try {
-            wakeup.compareAndSet(true, false);
+//            wakeup.compareAndSet(true, false);
             this.selector.select();
             this.asyncRegistry();
         } catch (IOException e) {
@@ -133,9 +141,9 @@ public class Reactor extends Thread implements Lifecycle {
 
     private void doWakeup() {
         final Selector selector = this.selector;
-        if (wakeup.compareAndSet(false, true)) {
+//        if (wakeup.compareAndSet(false, true)) {
             selector.wakeup();
-        }
+//        }
     }
 
 

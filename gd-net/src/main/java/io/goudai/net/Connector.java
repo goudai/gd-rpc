@@ -21,15 +21,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Created by freeman on 2016/1/8.
  */
 @Getter
-public class Connector extends Thread implements Lifecycle{
+public class Connector extends Thread implements Lifecycle {
     private static Logger logger = LoggerFactory.getLogger(Connector.class);
 
     private final Selector selector;
     private final ReactorPool reactorPool;
-    private Queue<Session>  asyncSessionQueue = new ConcurrentLinkedQueue<>();
+    private Queue<Session> asyncSessionQueue = new ConcurrentLinkedQueue<>();
 
 
-    public Connector(String name,ReactorPool reactorPool) throws IOException {
+    public Connector(String name, ReactorPool reactorPool) throws IOException {
         super(name);
         this.setDaemon(true);
         this.reactorPool = reactorPool;
@@ -37,14 +37,14 @@ public class Connector extends Thread implements Lifecycle{
     }
 
     @Override
-    public void startup()  {
+    public void startup() {
         this.start();
-        logger.info("connect {} started success",this.getName());
+        logger.info("connect {} started success", this.getName());
     }
 
     @Override
     public void shutdown() {
-        logger.info("connect {} shutdowning",this.getName());
+        logger.info("connect {} shutdowning", this.getName());
         try {
             this.selector.close();
         } catch (IOException e) {
@@ -52,10 +52,10 @@ public class Connector extends Thread implements Lifecycle{
         }
     }
 
-    public Session connect(InetSocketAddress remoteAddress,long timeout,SessionFactory sessionFactory) throws IOException, InterruptedException {
+    public Session connect(InetSocketAddress remoteAddress, long timeout, SessionFactory sessionFactory) throws IOException, InterruptedException {
         SocketChannel socketChannel = SocketChannel.open();
         socketChannel.configureBlocking(false);
-        Session session = (Session) sessionFactory.make(socketChannel,null);
+        Session session = (Session) sessionFactory.make(socketChannel, null);
         this.asyncSessionQueue.offer(session);
         socketChannel.connect(remoteAddress);
         this.selector.wakeup();
@@ -65,16 +65,16 @@ public class Connector extends Thread implements Lifecycle{
 
     @Override
     public void run() {
-        while (!interrupted()){
-           doSelect();
-            if(this.selector.isOpen()){
+        while (!interrupted()) {
+            doSelect();
+            if (this.selector.isOpen()) {
                 Set<SelectionKey> selectionKeys = selector.selectedKeys();
-                try{
+                try {
                     selectionKeys.forEach(this::connect);
-                }finally {
+                } finally {
                     selectionKeys.clear();
                 }
-            }else return;
+            } else return;
 
         }
     }
@@ -83,21 +83,22 @@ public class Connector extends Thread implements Lifecycle{
         try {
             if (key.isValid() && key.isConnectable()) {
                 AbstractSession session = (AbstractSession) key.attachment();
-                    while (!session.getSocketChannel().finishConnect()) {
-                        logger.info("check finish connection");
-                    }
-                    key.interestOps(0);
-                    session.finishConnect();
-                    reactorPool.register(session.getSocketChannel(), session);
-                }else
-                 key.cancel();
+                while (!session.getSocketChannel().finishConnect()) {
+                    logger.info("check finish connection");
+                }
+                key.interestOps(0);
+                session.finishConnect();
+                reactorPool.register(session.getSocketChannel(), session);
+            } else
+                key.cancel();
 
         } catch (Exception e) {
+            key.cancel();
             logger.error(e.getMessage(), e);
         }
     }
 
-    private void handleReg() {
+    private void handleAsyncSessionQueue() {
         Session session = null;
         while ((session = this.asyncSessionQueue.poll()) != null) {
             try {
@@ -108,12 +109,13 @@ public class Connector extends Thread implements Lifecycle{
             }
         }
     }
+
     private void doSelect() {
         try {
             this.selector.select();
-            this.handleReg();
+            this.handleAsyncSessionQueue();
         } catch (IOException e) {
-            logger.error(e.getMessage(),e);
+            logger.error(e.getMessage(), e);
         }
 
     }

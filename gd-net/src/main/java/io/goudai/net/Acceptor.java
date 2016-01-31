@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -33,6 +34,8 @@ public class Acceptor extends Thread implements Lifecycle {
         this.selector = Selector.open();
         this.reactorPool = reactorPool;
         this.serverSocketChannel = (ServerSocketChannel) ServerSocketChannel.open().bind(bindSocketAddress).configureBlocking(false);
+        serverSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+        serverSocketChannel.setOption(StandardSocketOptions.SO_RCVBUF, 1024 * 16 * 2);
         this.serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
         log.info("started server,bing socket address ={},port={}", bindSocketAddress.getHostName(), bindSocketAddress.getPort());
     }

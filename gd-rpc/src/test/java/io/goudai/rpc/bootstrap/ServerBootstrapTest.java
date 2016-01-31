@@ -6,6 +6,7 @@ import io.goudai.net.handler.codec.DefaultDecoder;
 import io.goudai.net.handler.codec.DefaultEncoder;
 import io.goudai.net.handler.serializer.JavaSerializer;
 import io.goudai.net.handler.serializer.Serializer;
+import io.goudai.net.session.AbstractSessionListener;
 import io.goudai.rpc.SimpleUserService;
 import io.goudai.rpc.UserService;
 import io.goudai.rpc.bootstarp.ServerBootstrap;
@@ -27,7 +28,8 @@ public class ServerBootstrapTest {
                 .encoder(new DefaultEncoder<>(serializer))
                 .serializer(serializer)
                 .channelHandler(new RequestHandler())
-                .executorService(Executors.newFixedThreadPool(100, new NamedThreadFactory()))
+                .sessionListener(new AbstractSessionListener())
+                .executorService(Executors.newFixedThreadPool(200, new NamedThreadFactory()))
                 .build()
                 .init();
     }
