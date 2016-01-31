@@ -99,14 +99,16 @@ public class Reactor extends Thread implements Lifecycle {
                 }
             }
         } catch (Exception e) {
-            try {
-                key.cancel();
-                key.channel().close();
-            } catch (IOException e1) {
-                //ig
-            }
+            session.setStatus(AbstractSession.Status.ERROR);
             if (session != null) {
                 ContextHolder.getContext().getSessionListener().onException(session, e);
+            }else{
+                try {
+                    key.cancel();
+                    key.channel().close();
+                } catch (IOException e1) {
+                    //ig
+                }
             }
         }
     }
@@ -133,6 +135,7 @@ public class Reactor extends Thread implements Lifecycle {
                     arsc.session = sessionFactory.make(arsc.socketChannel, key);
                     key.attach(arsc.session);
                 }
+                arsc.session.setStatus(AbstractSession.Status.OPEN);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
@@ -142,7 +145,7 @@ public class Reactor extends Thread implements Lifecycle {
     private void doWakeup() {
         final Selector selector = this.selector;
 //        if (wakeup.compareAndSet(false, true)) {
-            selector.wakeup();
+        selector.wakeup();
 //        }
     }
 

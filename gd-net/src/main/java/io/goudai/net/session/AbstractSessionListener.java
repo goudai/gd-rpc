@@ -26,7 +26,11 @@ public class AbstractSessionListener implements SessionListener {
 
     @Override
     public void onException(AbstractSession session, Exception e) {
-        session.setStatus(AbstractSession.Status.ERROR);
+        try {
+            session.close();
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
         if(e.getMessage().contains("远程主机强迫关闭了一个现有的连接")){
             log.warn("disconnect session [{}]",session);
             return;

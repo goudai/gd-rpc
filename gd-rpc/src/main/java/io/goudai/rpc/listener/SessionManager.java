@@ -6,6 +6,7 @@ import io.goudai.rpc.model.Heartbeat;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class SessionManager implements AutoCloseable {
-    public final ConcurrentHashMap<Long, AbstractSession> sessions = new ConcurrentHashMap();
+    public final ConcurrentHashMap<Long, AbstractSession> sessionConcurrentHashMap = new ConcurrentHashMap();
     //心跳间隔 默认120s
     private int heartbeatInterval = 120;
 
@@ -25,7 +26,13 @@ public class SessionManager implements AutoCloseable {
         ScheduledExecutorService heartbeatExecutorService = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("heartbeat", true));
         //启动心跳
         heartbeatExecutorService.schedule(() -> {
-            for (AbstractSession session : this.sessions()) {
+            Iterator<AbstractSession> iterator = sessions().iterator();
+            while (iterator.hasNext()){
+                AbstractSession session = iterator.next();
+                if(session.isClosed()){
+                    iterator.remove();
+                    continue;
+                }
                 //得到最后进行通信的时间差
                 long update = (System.currentTimeMillis() - session.getUpdateTime()) / 1000L;
                 if (update < heartbeatInterval) {
@@ -42,15 +49,15 @@ public class SessionManager implements AutoCloseable {
     }
 
     public void add(AbstractSession session) {
-        sessions.put(session.getId(), session);
+        sessionConcurrentHashMap.put(session.getId(), session);
     }
 
     public Set<Long> getKeys() {
-        return this.sessions.keySet();
+        return this.sessionConcurrentHashMap.keySet();
     }
 
     public Collection<AbstractSession> sessions() {
-        return this.sessions.values();
+        return this.sessionConcurrentHashMap.values();
     }
 
     @Override
@@ -63,6 +70,10 @@ public class SessionManager implements AutoCloseable {
                 log.error(e.getMessage(), e);
             }
         });
+    }
+
+    public void remove(AbstractSession session) {
+        this.sessionConcurrentHashMap.get(session.getId()).setStatus(AbstractSession.Status.CLOSED);
     }
 
     private static final class SessionManagerHolder {

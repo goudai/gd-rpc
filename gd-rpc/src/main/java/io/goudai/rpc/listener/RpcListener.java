@@ -12,4 +12,10 @@ public class RpcListener extends AbstractSessionListener {
         super.onCreated(session);
         SessionManager.getInstance().add(session);
     }
+
+    @Override
+    public void onDestory(AbstractSession session) {
+        super.onDestory(session);
+        SessionManager.getInstance().remove(session);
+    }
 }

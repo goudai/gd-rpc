@@ -5,13 +5,13 @@ import io.goudai.net.context.ContextHolder;
 import io.goudai.net.session.exception.ConnectedTimeoutException;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.Date;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -24,9 +24,9 @@ import java.util.concurrent.atomic.AtomicLong;
 @Getter
 @Setter
 @Slf4j
-@ToString
 public abstract class AbstractSession implements AutoCloseable {
     /*session的唯一标示*/
+
     protected final long id;
     /*session的创建时间*/
     protected final long createdTime;
@@ -41,11 +41,13 @@ public abstract class AbstractSession implements AutoCloseable {
     protected Queue<ByteBuffer> writeBufferQueue = new ConcurrentLinkedQueue<>();
     private Status status;
     private CountDownLatch connectLatch = new CountDownLatch(1);
+
     public AbstractSession(SocketChannel socketChannel, SelectionKey key) {
         this.createdTime = System.currentTimeMillis();
         this.id = SessionIdGenerator.getId();
         this.socketChannel = socketChannel;
         this.key = key;
+        this.status = Status.NEW;
     }
 
     public void finishConnect() {
@@ -65,9 +67,12 @@ public abstract class AbstractSession implements AutoCloseable {
     public void close() throws Exception {
         synchronized (this) {
             if (isClosed()) return;
-            if (key != null) key.cancel();
-            if (this.socketChannel != null) this.socketChannel.close();
             ContextHolder.getContext().getSessionListener().onDestory(this);
+            try {
+                if (key != null) key.cancel();
+            } catch (Exception e) {
+            }
+            if (this.socketChannel != null) this.socketChannel.close();
         }
     }
 
@@ -101,18 +106,26 @@ public abstract class AbstractSession implements AutoCloseable {
      */
     public abstract void write(Object t);
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("AbstractSession{");
+        sb.append("id=").append(id);
+        sb.append(", createdTime=").append(new Date(createdTime).toLocaleString());
+        sb.append(", status=").append(status);
+        sb.append('}');
+        return sb.toString();
+    }
+
     public static enum Status {
         NEW,//表示session刚刚创建
         OPEN,//标示session已经注册到了reactor
         CLOSED, //标示session已经关闭
         ERROR
     }
-
-
 }
 
 class SessionIdGenerator {
-    private final static AtomicLong sessionId = new AtomicLong(1);
+    private final static AtomicLong sessionId = new AtomicLong(0);
 
     static long getId() {
         return sessionId.incrementAndGet();

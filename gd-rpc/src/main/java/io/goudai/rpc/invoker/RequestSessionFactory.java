@@ -1,41 +1,43 @@
 package io.goudai.rpc.invoker;
 
-import io.goudai.commons.pool.factory.ObjectFactory;
 import io.goudai.net.Connector;
+import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.factory.SessionFactory;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.pool2.BasePooledObjectFactory;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
 
 import java.net.InetSocketAddress;
 
 /**
- * Created by freeman on 2016/1/28.
+ * Created by freeman on 2016/1/31.
  */
 @RequiredArgsConstructor
-@Slf4j
-public class RequestSessionFactory implements ObjectFactory<RequestSession> {
+public class RequestSessionFactory extends BasePooledObjectFactory<RequestSession> {
     private final String serverIp;
     private final int serverPort;
     private final Connector connector;
     private final SessionFactory sessionFactory;
 
     @Override
-    public RequestSession create() {
-        try {
-            RequestSession requestSession = new RequestSession(connector, new InetSocketAddress(serverIp, serverPort), sessionFactory);
-            log.info("connected success [{}]", requestSession.getSession());
-            return requestSession;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+    public RequestSession create() throws Exception {
+        return new RequestSession(connector, new InetSocketAddress(serverIp, serverPort), sessionFactory);
+    }
+
+
+    @Override
+    public PooledObject<RequestSession> wrap(RequestSession obj) {
+        return new DefaultPooledObject<>(obj);
     }
 
     @Override
-    public void destroy(RequestSession object) {
-        try {
-            object.getSession().close();
-        } catch (Exception e) {
+    public boolean validateObject(PooledObject<RequestSession> p) {
+        return p.getObject().getSession().getStatus() == AbstractSession.Status.OPEN;
+    }
 
-        }
+    @Override
+    public void destroyObject(PooledObject<RequestSession> p) throws Exception {
+        p.getObject().getSession().close();
     }
 }

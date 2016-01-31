@@ -28,7 +28,7 @@ public class RequestSession {
     private final SessionFactory sessionFactory;
     private Session session;
     //TODO 暂时写死 以后移动到配置文件中
-    private long timeout = 5000;
+    private long timeout = 3000;
 
 
     public RequestSession(Connector connector, InetSocketAddress remoteAddress, SessionFactory sessionFactory) {

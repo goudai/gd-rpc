@@ -51,7 +51,6 @@ public class PerfClientTest {
         }
         for (Task task : tasks) {
             task.start();
-
         }
 
         for (Task task : tasks) {
