@@ -35,7 +35,7 @@ public class SessionManager implements AutoCloseable {
                 }
                 //得到最后进行通信的时间差
                 long update = (System.currentTimeMillis() - session.getUpdateTime()) / 1000L;
-                if (update < heartbeatInterval) {
+                if (update > heartbeatInterval) {
                     session.write(Heartbeat.getInstance());
                     log.info("send heartbeat msg [{}].heartbeat interval [{}]", Heartbeat.getInstance(), this.heartbeatInterval);
                 }

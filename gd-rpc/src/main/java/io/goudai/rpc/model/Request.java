@@ -1,7 +1,8 @@
 package io.goudai.rpc.model;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
@@ -9,31 +10,26 @@ import java.io.Serializable;
  * Created by freeman on 2016/1/17.
  */
 @Builder
-@Data
+@Getter
+@Setter
 public class Request implements Serializable {
 
-    /**
-     * id requset的唯一表示
-     */
     private String id;
-
-    /**
-     * 需要进行调用的服务接口全名
-     */
     private String service;
-    /**
-     * 方法名
-     */
     private String methodName;
-    /**
-     * 参数
-     */
     private Object[] params;
-
-    /**
-     * 参数类型
-     */
     private Class<?>[] patamType;
+    public long createTime;
+    public long timeout;
 
-
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Request{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", service='").append(service).append('\'');
+        sb.append(", methodName='").append(methodName).append('\'');
+        sb.append(", timeout=").append(timeout);
+        sb.append('}');
+        return sb.toString();
+    }
 }

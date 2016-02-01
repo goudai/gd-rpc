@@ -37,6 +37,8 @@ public class JavaProxyServiceFactory implements ProxyServiceFactory {
                 .params(args)
                 .patamType(method.getParameterTypes())
                 .methodName(method.getName())
+                .createTime(System.currentTimeMillis())
+                .timeout(3000)
                 .build();
     }
 }

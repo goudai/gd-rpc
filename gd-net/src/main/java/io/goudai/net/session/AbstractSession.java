@@ -112,6 +112,7 @@ public abstract class AbstractSession implements AutoCloseable {
         sb.append("id=").append(id);
         sb.append(", createdTime=").append(new Date(createdTime).toLocaleString());
         sb.append(", status=").append(status);
+        sb.append(",socketChannel=").append(socketChannel);
         sb.append('}');
         return sb.toString();
     }
