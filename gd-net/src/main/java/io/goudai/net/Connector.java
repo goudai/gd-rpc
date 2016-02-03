@@ -1,6 +1,7 @@
 package io.goudai.net;
 
 import io.goudai.net.common.Lifecycle;
+import io.goudai.net.context.ContextHolder;
 import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.Session;
 import io.goudai.net.session.factory.SessionFactory;
@@ -59,7 +60,7 @@ public class Connector extends Thread implements Lifecycle {
         this.asyncSessionQueue.offer(session);
         socketChannel.connect(remoteAddress);
         this.selector.wakeup();
-        session.await(timeout);
+        session.awaitConnected(timeout);
         return session;
     }
 
@@ -88,6 +89,7 @@ public class Connector extends Thread implements Lifecycle {
                 }
                 key.interestOps(0);
                 session.finishConnect();
+                ContextHolder.getContext().getSessionListener().onConnected(session);
                 reactorPool.register(session.getSocketChannel(), session);
             } else
                 key.cancel();

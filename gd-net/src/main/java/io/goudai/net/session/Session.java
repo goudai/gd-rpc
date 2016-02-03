@@ -27,7 +27,6 @@ public class Session<REQ, RESP> extends AbstractSession {
     private final ChannelHandler channelHandler;
     private final Encoder<RESP> encoder;
     private final ExecutorService executorService;
-//    AtomicBoolean isEnableWriteEvent = new AtomicBoolean(false);
 
     public Session(SocketChannel socketChannel, SelectionKey key) {
         super(socketChannel, key);
@@ -44,7 +43,9 @@ public class Session<REQ, RESP> extends AbstractSession {
         ByteBuffer buf = BufferPool.getInstance().allocate();
         try {
             //TODO 考虑是否每次强行读完 还是选择读物一个最大包
-            while (socketChannel.read(buf) > 0) {
+            int n = 0;
+            while ((n = socketChannel.read(buf)) > 0) {
+                if (n < 0) this.close();
                 buf.flip();
                 byte[] bytes = new byte[buf.limit()];
                 buf.get(bytes);
@@ -58,24 +59,24 @@ public class Session<REQ, RESP> extends AbstractSession {
         List<REQ> result = new ArrayList<>();
         IoBuffer in = decoder.decode(tempBuf, result);
         this.restReadBuffer(in);
-        result.forEach(r->this.executorService.execute(() ->{
-            ContextHolder.getContext().getSessionListener().onMessage(this, r);
+        result.forEach(r -> this.executorService.execute(() -> {
+            ContextHolder.getContext().getSessionListener().onRead(this, r);
             channelHandler.received(this, r);
         }));
 
     }
 
     @Override
-    public void realWrite() throws IOException {
+    public void realWrite() throws Exception {
         while (true) {
             ByteBuffer buffer = writeBufferQueue.peek();
             if (buffer == null) {
                 //通道的事件写完之后取消写事件
                 key.interestOps(key.interestOps() & ~SelectionKey.OP_WRITE);
-//                isEnableWriteEvent.compareAndSet(true, false);
                 return;
             }
             int write = socketChannel.write(buffer);
+            if (write < 0) this.close();
             if (write == 0 && buffer.remaining() > 0) {
                 return;
             }
@@ -90,11 +91,10 @@ public class Session<REQ, RESP> extends AbstractSession {
 
     @Override
     public void write(Object object) {
-        this.writeBufferQueue.offer(encoder.encode((RESP)object));
-//        if (isEnableWriteEvent.compareAndSet(false, true)) {
-            key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
-            key.selector().wakeup();
-//        }
+        ContextHolder.getContext().getSessionListener().onWrite(this, object);
+        this.writeBufferQueue.offer(encoder.encode((RESP) object));
+        key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
+        key.selector().wakeup();
     }
 
     private void restReadBuffer(IoBuffer tempBuf) {

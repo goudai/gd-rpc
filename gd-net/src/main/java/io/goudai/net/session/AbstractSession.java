@@ -24,13 +24,14 @@ import java.util.concurrent.atomic.AtomicLong;
 @Getter
 @Setter
 @Slf4j
-public abstract class AbstractSession implements AutoCloseable {
+public abstract class AbstractSession  {
     /*session的唯一标示*/
 
     protected final long id;
     /*session的创建时间*/
     protected final long createdTime;
     /*具体的server 于 client之间建立的真实通道*/
+
     protected final SocketChannel socketChannel;
     /* session最后一次进行读写的时间 */
     protected long updateTime;
@@ -54,25 +55,31 @@ public abstract class AbstractSession implements AutoCloseable {
         this.connectLatch.countDown();
     }
 
-    public boolean await(long time) {
+    public void awaitConnected(long time) {
         try {
-            return this.connectLatch.await(time, TimeUnit.MILLISECONDS);
+             if(!this.connectLatch.await(time, TimeUnit.MILLISECONDS)){
+                 throw new ConnectedTimeoutException("connected server timeout ! timeout=[" + time + "]");
+             };
         } catch (InterruptedException e) {
             // ig
         }
-        throw new ConnectedTimeoutException("connected server timeout ! timeout=[" + time + "]");
     }
 
-    @Override
-    public void close() throws Exception {
+
+    public void close()   {
         synchronized (this) {
             if (isClosed()) return;
             ContextHolder.getContext().getSessionListener().onDestory(this);
             try {
                 if (key != null) key.cancel();
             } catch (Exception e) {
+                log.warn(e.getMessage(),e);
             }
-            if (this.socketChannel != null) this.socketChannel.close();
+            try {
+                if (this.socketChannel != null) this.socketChannel.close();
+            } catch (IOException e) {
+                log.warn(e.getMessage(),e);
+            }
         }
     }
 
@@ -96,7 +103,7 @@ public abstract class AbstractSession implements AutoCloseable {
      *
      * @throws IOException
      */
-    public abstract void realWrite() throws IOException;
+    public abstract void realWrite() throws Exception;
 
     /**
      * 写入数据
@@ -112,13 +119,18 @@ public abstract class AbstractSession implements AutoCloseable {
         sb.append("id=").append(id);
         sb.append(", createdTime=").append(new Date(createdTime).toLocaleString());
         sb.append(", status=").append(status);
-        sb.append(",socketChannel=").append(socketChannel);
+        try {
+            sb.append(",socketChannel=").append(socketChannel.getLocalAddress() +" --> " + socketChannel.getRemoteAddress());
+        } catch (IOException e) {
+           log.warn(e.getMessage(),e);
+        }
         sb.append('}');
         return sb.toString();
     }
 
     public static enum Status {
         NEW,//表示session刚刚创建
+        CONNECTED,
         OPEN,//标示session已经注册到了reactor
         CLOSED, //标示session已经关闭
         ERROR

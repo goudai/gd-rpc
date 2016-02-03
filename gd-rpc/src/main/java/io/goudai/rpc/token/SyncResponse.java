@@ -36,7 +36,7 @@ public class SyncResponse {
         try {
             if (!this.latch.await(request.getTimeout(), TimeUnit.MILLISECONDS)) {
                 SyncResponseManager.removeSyncResponse(this.id);
-                throw new RequestTimeoutException("timeout=[" + this.request.getTimeout() + "] requestId= [" + request.getId() + "]!");
+                throw new RequestTimeoutException("timeout=[" + this.request + "] requestId= [" + request.getId() + "]!");
             }
         } catch (InterruptedException e) {
            //ig
