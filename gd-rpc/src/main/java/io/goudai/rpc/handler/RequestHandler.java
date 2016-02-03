@@ -46,6 +46,8 @@ public class RequestHandler implements ChannelHandler, ServiceRegistryHandler {
             //处理心跳信息
             if(log.isInfoEnabled())
                 log.info("heartbeat msg , session = [{}]",session);
+            //响应心跳信息
+            session.write(obj);
         }
 
 

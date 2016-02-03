@@ -37,6 +37,7 @@ public class SessionManager implements AutoCloseable {
                 long update = (System.currentTimeMillis() - session.getUpdateTime()) / 1000L;
                 if (update > heartbeatInterval) {
                     session.write(Heartbeat.getInstance());
+                    if(log.isInfoEnabled())
                     log.info("send heartbeat msg [{}].heartbeat interval [{}]", Heartbeat.getInstance(), this.heartbeatInterval);
                 }
             }
@@ -64,6 +65,7 @@ public class SessionManager implements AutoCloseable {
     public void close() throws Exception {
         this.sessions().forEach(s -> {
             try {
+                if (log.isInfoEnabled())
                 log.info("close session [{}]", s);
                 s.close();
             } catch (Exception e) {

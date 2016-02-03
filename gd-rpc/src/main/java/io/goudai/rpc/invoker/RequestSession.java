@@ -4,16 +4,14 @@ import io.goudai.net.Connector;
 import io.goudai.net.session.Session;
 import io.goudai.net.session.factory.SessionFactory;
 import io.goudai.rpc.exception.RequestSessionStartedException;
-import io.goudai.rpc.exception.RequestTimeoutException;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
-import io.goudai.rpc.token.Token;
-import io.goudai.rpc.token.TokenManager;
+import io.goudai.rpc.token.SyncResponse;
+import io.goudai.rpc.token.SyncResponseManager;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by freeman on 2016/1/17.
@@ -42,13 +40,10 @@ public class RequestSession {
         }
     }
 
-    public Response invoker(Request request) throws RequestTimeoutException, InterruptedException {
-        Token token = TokenManager.createTicket(request, timeout);
+    public Response invoker(Request request) {
+        SyncResponse syncResponse = SyncResponseManager.createSyncResponse(request);
         this.session.write(request);
-        if (!token.await(timeout, TimeUnit.MILLISECONDS)) {
-            throw new RequestTimeoutException("timeout=[" + this.timeout + "] requestId= [" + request.getId() + "]!");
-        }
-        return token.getResponse();
+        return syncResponse.awaitResponse();
 
 
     }
