@@ -42,5 +42,4 @@ public class Context<REQ, RESP> {
         log.debug("init context success !! \r\n{}", this);
     }
 
-
 }
