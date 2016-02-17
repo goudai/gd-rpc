@@ -25,8 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class Reactor extends Thread implements Lifecycle {
 
-    /*唤醒标记用于减少唤醒次数*/
-//    private final static AtomicBoolean wakeup = new AtomicBoolean(false);
     /*处理读写事件的selector*/
     private final Selector selector;
     /*负责构造具体的session*/
@@ -56,7 +54,6 @@ public class Reactor extends Thread implements Lifecycle {
         try {
             this.started.set(false);
             this.selector.close();
-            this.interrupt();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -70,15 +67,18 @@ public class Reactor extends Thread implements Lifecycle {
     @Override
     public void run() {
         while (started.get()) {
-            doSelect();
             if (this.selector.isOpen()) {
+                this.doSelect();
                 Set<SelectionKey> selectionKeys = this.selector.selectedKeys();
                 try {
                     selectionKeys.forEach(this::react);
                 } finally {
                     selectionKeys.clear();
                 }
-            } else return;
+            } else {
+                log.error("{} selector is closed ,selector = [{}]",this.getName(),this.selector);
+                return;
+            }
         }
 
 
@@ -99,10 +99,10 @@ public class Reactor extends Thread implements Lifecycle {
                 }
             }
         } catch (Exception e) {
-            session.setStatus(AbstractSession.Status.ERROR);
             if (session != null) {
+                session.setStatus(AbstractSession.Status.ERROR);
                 ContextHolder.getContext().getSessionListener().onException(session, e);
-            }else{
+            } else {
                 try {
                     key.cancel();
                     key.channel().close();
@@ -115,7 +115,6 @@ public class Reactor extends Thread implements Lifecycle {
 
     private void doSelect() {
         try {
-//            wakeup.compareAndSet(true, false);
             this.selector.select();
             this.asyncRegistry();
         } catch (IOException e) {
@@ -144,13 +143,11 @@ public class Reactor extends Thread implements Lifecycle {
 
     private void doWakeup() {
         final Selector selector = this.selector;
-//        if (wakeup.compareAndSet(false, true)) {
         selector.wakeup();
-//        }
     }
 
 
-    private static class AsyncRegistrySocketChannel {
+    private final class AsyncRegistrySocketChannel {
         private SocketChannel socketChannel;
         private int ops;
         private AbstractSession session;

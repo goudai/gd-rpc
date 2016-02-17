@@ -11,6 +11,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by freeman 2016/1/8.
@@ -28,6 +29,9 @@ public class Acceptor extends Thread implements Lifecycle {
     private final ReactorPool reactorPool;
     private final ServerSocketChannel serverSocketChannel;
 
+    /*标记是否启动*/
+    private final AtomicBoolean started = new AtomicBoolean(false);
+
     public Acceptor(String name, InetSocketAddress bindSocketAddress, ReactorPool reactorPool) throws IOException {
         super(name);
         this.setDaemon(true);
@@ -42,13 +46,14 @@ public class Acceptor extends Thread implements Lifecycle {
 
     @Override
     public void startup() {
+        this.started.set(true);
         this.start();
-        log.info("accept {} started success",this.getName());
+        log.info("accept {} started success", this.getName());
     }
 
     @Override
     public void shutdown() {
-        log.info("accept {} shutdowning",this.getName());
+        log.info("accept {} shutdowning", this.getName());
         try {
             this.selector.close();
             this.serverSocketChannel.close();
@@ -60,34 +65,43 @@ public class Acceptor extends Thread implements Lifecycle {
 
     @Override
     public void run() {
-        while (!interrupted()) {
-            final Selector selector = this.selector;
-            try {
-                selector.select();
+        while (started.get()) {
+            if (this.selector.isOpen()) {
+                this.doSelect();
                 Set<SelectionKey> selectionKeys = selector.selectedKeys();
                 try {
                     selectionKeys.forEach(this::accept);
                 } finally {
                     selectionKeys.clear();
                 }
-            } catch (IOException e) {
-                log.warn(e.getMessage(), e);
+            } else {
+                log.error("{} selector is closed ,selector = [{}]", this.getName(), this.selector);
+                return;
             }
+        }
+    }
+
+    private void doSelect() {
+        try {
+            this.selector.select();
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
         }
     }
 
     /**
      * 处理accpect事件
+     *
      * @param key
      */
     private void accept(SelectionKey key) {
-            try {
-                if (key.isValid() && key.isAcceptable())
+        try {
+            if (key.isValid() && key.isAcceptable())
                 reactorPool.register((SocketChannel) ((ServerSocketChannel) key.channel()).accept().configureBlocking(false));
-                else key.cancel();
-            } catch (IOException e) {
-               log.error(e.getMessage(),e);
-            }
+            else key.cancel();
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
 
     }
 

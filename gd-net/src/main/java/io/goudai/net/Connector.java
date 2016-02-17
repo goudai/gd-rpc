@@ -6,8 +6,7 @@ import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.Session;
 import io.goudai.net.session.factory.SessionFactory;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,18 +16,20 @@ import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by freeman on 2016/1/8.
  */
 @Getter
+@Slf4j
 public class Connector extends Thread implements Lifecycle {
-    private static Logger logger = LoggerFactory.getLogger(Connector.class);
 
     private final Selector selector;
     private final ReactorPool reactorPool;
+    /*标记是否启动*/
+    private final AtomicBoolean started = new AtomicBoolean(false);
     private Queue<Session> asyncSessionQueue = new ConcurrentLinkedQueue<>();
-
 
     public Connector(String name, ReactorPool reactorPool) throws IOException {
         super(name);
@@ -39,13 +40,14 @@ public class Connector extends Thread implements Lifecycle {
 
     @Override
     public void startup() {
+        this.started.set(true);
         this.start();
-        logger.info("connect {} started success", this.getName());
+        log.info("connect {} started success", this.getName());
     }
 
     @Override
     public void shutdown() {
-        logger.info("connect {} shutdowning", this.getName());
+        log.info("connect {} shutdowning", this.getName());
         try {
             this.selector.close();
         } catch (IOException e) {
@@ -66,17 +68,19 @@ public class Connector extends Thread implements Lifecycle {
 
     @Override
     public void run() {
-        while (!interrupted()) {
-            doSelect();
+        while (started.get()) {
             if (this.selector.isOpen()) {
+                this.doSelect();
                 Set<SelectionKey> selectionKeys = selector.selectedKeys();
                 try {
                     selectionKeys.forEach(this::connect);
                 } finally {
                     selectionKeys.clear();
                 }
-            } else return;
-
+            } else {
+                log.error("{} selector is closed ,selector = [{}]", this.getName(), this.selector);
+                return;
+            }
         }
     }
 
@@ -85,7 +89,7 @@ public class Connector extends Thread implements Lifecycle {
             if (key.isValid() && key.isConnectable()) {
                 AbstractSession session = (AbstractSession) key.attachment();
                 while (!session.getSocketChannel().finishConnect()) {
-                    logger.info("check finish connection");
+                    log.info("check finish connection");
                 }
                 key.interestOps(0);
                 session.finishConnect();
@@ -96,7 +100,7 @@ public class Connector extends Thread implements Lifecycle {
 
         } catch (Exception e) {
             key.cancel();
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
@@ -107,7 +111,7 @@ public class Connector extends Thread implements Lifecycle {
                 SelectionKey key = session.getSocketChannel().register(selector, SelectionKey.OP_CONNECT, session);
                 session.setKey(key);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
     }
@@ -117,7 +121,7 @@ public class Connector extends Thread implements Lifecycle {
             this.selector.select();
             this.handleAsyncSessionQueue();
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
 
     }
