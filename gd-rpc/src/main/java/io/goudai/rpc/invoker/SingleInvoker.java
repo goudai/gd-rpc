@@ -15,18 +15,24 @@ public class SingleInvoker implements Invoker {
 
     private Pool<RequestSession> requestSessionPool;
 
+
     public SingleInvoker(PooledObjectFactory<RequestSession> objectFactory) {
         GenericObjectPoolConfig config = new GenericObjectPoolConfig();
         config.setMaxIdle(100);
         config.setMaxTotal(100);
         config.setTestOnReturn(true);
         this.requestSessionPool = new Commons2Pool<>(config, objectFactory);
-
     }
+
+    public SingleInvoker(PooledObjectFactory<RequestSession> objectFactory, GenericObjectPoolConfig config) {
+        config.setTestOnReturn(true);
+        this.requestSessionPool = new Commons2Pool<>(config, objectFactory);
+    }
+    
 
     @Override
     public String name() {
-        return "SingleInvoker";
+        return SingleInvoker.class.getSimpleName();
     }
 
     @Override
@@ -48,6 +54,5 @@ public class SingleInvoker implements Invoker {
     public void shutdown() {
         this.requestSessionPool.destroy();
     }
-
 
 }
