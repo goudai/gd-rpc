@@ -10,8 +10,11 @@ public interface SessionListener{
 	void onWrite(AbstractSession session, Object obj);
 	
 	void onDestory(AbstractSession session);
-	
+
+	void onOpen(AbstractSession session);
+
 	void onException(AbstractSession session, Exception e);
 
 	void onConnected(AbstractSession session);
+
 }

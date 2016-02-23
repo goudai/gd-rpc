@@ -67,7 +67,7 @@ public class Reactor extends Thread implements Lifecycle {
     @Override
     public void run() {
         while (started.get()) {
-                this.doSelect();
+            this.doSelect();
             if (this.selector.isOpen()) {
                 Set<SelectionKey> selectionKeys = this.selector.selectedKeys();
                 try {
@@ -76,7 +76,7 @@ public class Reactor extends Thread implements Lifecycle {
                     selectionKeys.clear();
                 }
             } else {
-                log.error("{} selector is closed ,selector = [{}]",this.getName(),this.selector);
+                log.error("{} selector is closed ,selector = [{}]", this.getName(), this.selector);
                 return;
             }
         }
@@ -134,7 +134,7 @@ public class Reactor extends Thread implements Lifecycle {
                     arsc.session = sessionFactory.make(arsc.socketChannel, key);
                     key.attach(arsc.session);
                 }
-                arsc.session.setStatus(AbstractSession.Status.OPEN);
+                ContextHolder.getContext().getSessionListener().onOpen(arsc.session);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }

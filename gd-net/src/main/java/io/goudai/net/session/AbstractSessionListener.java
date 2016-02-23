@@ -21,6 +21,12 @@ public class AbstractSessionListener implements SessionListener {
     }
 
     @Override
+    public void onOpen(AbstractSession session) {
+        session.setStatus(AbstractSession.Status.OPEN);
+        log.info("open session success [{}]", session);
+    }
+
+    @Override
     public void onRead(AbstractSession session, Object obj) {
         session.updateTime();
     }
@@ -34,6 +40,7 @@ public class AbstractSessionListener implements SessionListener {
     public void onDestory(AbstractSession session) {
         session.setStatus(AbstractSession.Status.CLOSED);
     }
+
 
     @Override
     public void onException(AbstractSession session, Exception e) {
