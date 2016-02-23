@@ -105,7 +105,7 @@ public class Connector extends Thread implements Lifecycle {
     }
 
     private void handleAsyncSessionQueue() {
-        Session session = null;
+        AbstractSession session = null;
         while ((session = this.asyncSessionQueue.poll()) != null) {
             try {
                 SelectionKey key = session.getSocketChannel().register(selector, SelectionKey.OP_CONNECT, session);
