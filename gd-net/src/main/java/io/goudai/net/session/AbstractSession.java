@@ -120,6 +120,7 @@ public abstract class AbstractSession  {
         sb.append(", createdTime=").append(new Date(createdTime).toLocaleString());
         sb.append(", status=").append(status);
         try {
+            if(socketChannel.isOpen())
             sb.append(",socketChannel=").append(socketChannel.getLocalAddress() +" --> " + socketChannel.getRemoteAddress());
         } catch (IOException e) {
            log.warn(e.getMessage(),e);

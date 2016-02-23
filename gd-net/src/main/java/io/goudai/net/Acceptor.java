@@ -66,8 +66,8 @@ public class Acceptor extends Thread implements Lifecycle {
     @Override
     public void run() {
         while (started.get()) {
-            if (this.selector.isOpen()) {
                 this.doSelect();
+            if (this.selector.isOpen()) {
                 Set<SelectionKey> selectionKeys = selector.selectedKeys();
                 try {
                     selectionKeys.forEach(this::accept);

@@ -67,8 +67,8 @@ public class Reactor extends Thread implements Lifecycle {
     @Override
     public void run() {
         while (started.get()) {
-            if (this.selector.isOpen()) {
                 this.doSelect();
+            if (this.selector.isOpen()) {
                 Set<SelectionKey> selectionKeys = this.selector.selectedKeys();
                 try {
                     selectionKeys.forEach(this::react);
