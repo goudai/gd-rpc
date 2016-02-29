@@ -1,6 +1,7 @@
 package io.goudai.registry;
 
 import io.goudai.registry.protocol.Protocol;
+import io.goudai.registry.protocol.URL;
 
 import java.util.List;
 
@@ -10,20 +11,16 @@ import java.util.List;
 
 public interface Registry {
     /**
-     *
-     * @param interfaceClass 需要进行暴露的接口
-     * @param service 暴露的接口的具体实现
+     * @param protocol  暴露的协议
      */
-    void registry(Class<?> interfaceClass,Object service);
+    void registry(Protocol protocol);
 
     /**
-     *  获取当前协议的可以用服务集合
+     *
      * @param protocol
-     * @return 可以服务的集合
+     * @return //"provider://host:port/com.goudai.test.UserService?timeout=1000&methods=test,getUser,findUser&app=gd-app&version=v1.0.0&group=gd-group"
      */
-    List<Object> getService(Protocol protocol);
-
-
+    List<URL> lookup(Protocol protocol);
 
 
 }
