@@ -2,6 +2,7 @@ package io.goudai.registry;
 
 import io.goudai.registry.protocol.Protocol;
 import io.goudai.registry.protocol.URL;
+import io.goudai.registry.zookeeper.Callback;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
@@ -29,6 +30,7 @@ public class ZooKeeRegistry implements Registry {
     private int timeout;
 
 
+
     public ZooKeeRegistry(String zkAddress, int timeout) throws Exception {
         this.zkAddress = zkAddress;
         this.timeout = timeout;
@@ -44,7 +46,7 @@ public class ZooKeeRegistry implements Registry {
 
 
     @Override
-    public void registry(Protocol protocol) {
+    public void register(Protocol protocol) {
         try {
             String path = check(protocol, "provider") + "/" + URLEncoder.encode(protocol.value(), "utf-8");
             if (this.client.checkExists().forPath(path) == null) {
@@ -70,6 +72,21 @@ public class ZooKeeRegistry implements Registry {
             client.create().forPath(path);
         }
         return path;
+    }
+
+    @Override
+    public void unRegister(Protocol protocol) {
+
+    }
+
+    @Override
+    public void subscribe(Protocol protocol,Callback callback) {
+
+    }
+
+    @Override
+    public void unSubscribe(Protocol protocol) {
+
     }
 
     @Override
