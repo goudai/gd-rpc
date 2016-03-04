@@ -2,7 +2,7 @@ package io.goudai.rpc;
 
 import io.goudai.commons.factory.NamedThreadFactory;
 import io.goudai.net.Connector;
-import io.goudai.net.ReactorPool;
+import io.goudai.net.Reactor;
 import io.goudai.net.context.Context;
 import io.goudai.net.handler.codec.DefaultDecoder;
 import io.goudai.net.handler.codec.DefaultEncoder;
@@ -37,9 +37,9 @@ public class ProxyServiceClientTest {
     }
     public static void main(String[] args) throws Exception {
         DefaultSessionFactory sessionFactory = new DefaultSessionFactory();
-        ReactorPool reactorPool = new ReactorPool(1, sessionFactory);
-        reactorPool.startup();
-        Connector connector = new Connector("rpc-client", reactorPool);
+        Reactor reactor = new Reactor(1, sessionFactory);
+        reactor.startup();
+        Connector connector = new Connector("rpc-client", reactor);
         connector.startup();
         Invoker singleInvoker = new SingleInvoker(new RequestSessionFactory("localhost", 9999,connector,sessionFactory));
         ProxyServiceFactory proxyServiceFactory = new JavaProxyServiceFactory(singleInvoker);

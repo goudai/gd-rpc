@@ -26,22 +26,22 @@ public class Acceptor extends Thread implements Lifecycle {
     * 获取新的accept链接之后会从该pool中获取到一个reactor读写事件选择器
     * 并注册到该selecrot
     * */
-    private final ReactorPool reactorPool;
+    private final Reactor reactor;
     private final ServerSocketChannel serverSocketChannel;
 
     /*标记是否启动*/
     private final AtomicBoolean started = new AtomicBoolean(false);
 
-    public Acceptor(String name, InetSocketAddress bindSocketAddress, ReactorPool reactorPool) throws IOException {
+    public Acceptor(String name, InetSocketAddress bindSocketAddress, Reactor reactor) throws IOException {
         super(name);
         this.setDaemon(true);
         this.selector = Selector.open();
-        this.reactorPool = reactorPool;
+        this.reactor = reactor;
         this.serverSocketChannel = (ServerSocketChannel) ServerSocketChannel.open().bind(bindSocketAddress).configureBlocking(false);
         serverSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
         serverSocketChannel.setOption(StandardSocketOptions.SO_RCVBUF, 1024 * 16 * 2);
         this.serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
-        log.info("started server,bing socket address ={},port={}", bindSocketAddress.getHostName(), bindSocketAddress.getPort());
+        log.info("start server,bind socket address -->[{}],port -->[{}]", bindSocketAddress.getHostName(), bindSocketAddress.getPort());
     }
 
     @Override
@@ -97,7 +97,7 @@ public class Acceptor extends Thread implements Lifecycle {
     private void accept(SelectionKey key) {
         try {
             if (key.isValid() && key.isAcceptable())
-                reactorPool.register((SocketChannel) ((ServerSocketChannel) key.channel()).accept().configureBlocking(false));
+                reactor.register((SocketChannel) ((ServerSocketChannel) key.channel()).accept().configureBlocking(false));
             else key.cancel();
         } catch (IOException e) {
             log.error(e.getMessage(), e);

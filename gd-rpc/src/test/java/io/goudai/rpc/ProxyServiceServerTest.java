@@ -2,7 +2,7 @@ package io.goudai.rpc;
 
 import io.goudai.commons.factory.NamedThreadFactory;
 import io.goudai.net.Acceptor;
-import io.goudai.net.ReactorPool;
+import io.goudai.net.Reactor;
 import io.goudai.net.context.Context;
 import io.goudai.net.context.ContextHolder;
 import io.goudai.net.handler.codec.DefaultDecoder;
@@ -36,10 +36,13 @@ public class ProxyServiceServerTest {
         RequestHandler handler = (RequestHandler) ContextHolder.getContext().getChannelHandler();
         handler.registry(UserService.class,new SimpleUserService());
         DefaultSessionFactory sessionFactory = new DefaultSessionFactory();
-        ReactorPool reactorPool = new ReactorPool(1, sessionFactory);
-        reactorPool.startup();
-        Acceptor acceptor = new Acceptor("rpc-server",new InetSocketAddress("0.0.0.0",8888), reactorPool);
+        Reactor reactor = new Reactor(1, sessionFactory);
+        reactor.startup();
+        Acceptor acceptor = new Acceptor("rpc-server",new InetSocketAddress("0.0.0.0",9999), reactor);
         acceptor.startup();
+        while (true){
+            Thread.sleep(Long.MAX_VALUE);
+        }
 
     }
 }

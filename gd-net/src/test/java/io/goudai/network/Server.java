@@ -2,7 +2,7 @@ package io.goudai.network;
 
 import io.goudai.commons.factory.NamedThreadFactory;
 import io.goudai.net.Acceptor;
-import io.goudai.net.ReactorPool;
+import io.goudai.net.Reactor;
 import io.goudai.net.context.Context;
 import io.goudai.net.handler.codec.DefaultDecoder;
 import io.goudai.net.handler.codec.DefaultEncoder;
@@ -36,9 +36,9 @@ public class Server {
 
     public static void main(String[] args) throws Exception {
 
-        ReactorPool reactorPool = new ReactorPool(1, new DefaultSessionFactory());
-        reactorPool.startup();
-        Acceptor acceptor = new Acceptor("test-server", new InetSocketAddress(8888), reactorPool);
+        Reactor reactor = new Reactor(1, new DefaultSessionFactory());
+        reactor.startup();
+        Acceptor acceptor = new Acceptor("test-server", new InetSocketAddress(8888), reactor);
         acceptor.startup();
     }
 }

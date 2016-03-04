@@ -26,15 +26,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Connector extends Thread implements Lifecycle {
 
     private final Selector selector;
-    private final ReactorPool reactorPool;
+    private final Reactor reactor;
     /*标记是否启动*/
     private final AtomicBoolean started = new AtomicBoolean(false);
     private Queue<Session> asyncSessionQueue = new ConcurrentLinkedQueue<>();
 
-    public Connector(String name, ReactorPool reactorPool) throws IOException {
+    public Connector(String name, Reactor reactor) throws IOException {
         super(name);
         this.setDaemon(true);
-        this.reactorPool = reactorPool;
+        this.reactor = reactor;
         this.selector = Selector.open();
     }
 
@@ -94,7 +94,7 @@ public class Connector extends Thread implements Lifecycle {
                 key.interestOps(0);
                 session.finishConnect();
                 ContextHolder.getContext().getSessionListener().onConnected(session);
-                reactorPool.register(session.getSocketChannel(), session);
+                reactor.register(session.getSocketChannel(), session);
             } else
                 key.cancel();
 

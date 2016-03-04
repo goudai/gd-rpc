@@ -12,7 +12,7 @@ public interface Lifecycle {
     void startup();
 
     /**
-     * 关闭时间处理器并且清理资源
+     * 关闭事件处理器并且清理资源
      * @throws Exception
      */
     void shutdown();

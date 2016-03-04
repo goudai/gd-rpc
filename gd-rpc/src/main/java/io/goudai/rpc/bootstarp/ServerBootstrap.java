@@ -1,7 +1,7 @@
 package io.goudai.rpc.bootstarp;
 
 import io.goudai.net.Acceptor;
-import io.goudai.net.ReactorPool;
+import io.goudai.net.Reactor;
 import io.goudai.net.common.Lifecycle;
 import io.goudai.net.context.ContextHolder;
 import io.goudai.net.session.factory.DefaultSessionFactory;
@@ -21,7 +21,7 @@ public class ServerBootstrap implements Lifecycle {
     private final static int DEFAULT_REACTOR_NUM = 1;
     private final static CountDownLatch latch = new CountDownLatch(1);
     private Acceptor acceptor;
-    private ReactorPool reactorPool;
+    private Reactor reactor;
     private int port;
 
     public ServerBootstrap(int port) throws IOException {
@@ -29,8 +29,8 @@ public class ServerBootstrap implements Lifecycle {
     }
 
     public ServerBootstrap(int reactors, int port) throws IOException {
-        reactorPool = new ReactorPool(reactors, new DefaultSessionFactory());
-        acceptor = new Acceptor("goudai-rpc-accpector-trhead", new InetSocketAddress(port), this.reactorPool);
+        reactor = new Reactor(reactors, new DefaultSessionFactory());
+        acceptor = new Acceptor("goudai-rpc-accpector-trhead", new InetSocketAddress(port), this.reactor);
         this.port = port;
     }
 
@@ -44,7 +44,7 @@ public class ServerBootstrap implements Lifecycle {
     @Override
     public void startup() {
         this.acceptor.startup();
-        this.reactorPool.startup();
+        this.reactor.startup();
         try {
             log.info("{} started successfully complete !", this);
             latch.await();
@@ -57,7 +57,7 @@ public class ServerBootstrap implements Lifecycle {
     public void shutdown() {
         latch.countDown();
         this.acceptor.shutdown();
-        this.reactorPool.shutdown();
+        this.reactor.shutdown();
     }
 
 

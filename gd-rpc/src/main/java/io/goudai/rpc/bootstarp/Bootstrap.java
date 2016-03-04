@@ -1,7 +1,7 @@
 package io.goudai.rpc.bootstarp;
 
 import io.goudai.net.Connector;
-import io.goudai.net.ReactorPool;
+import io.goudai.net.Reactor;
 import io.goudai.net.common.Lifecycle;
 import io.goudai.net.session.factory.DefaultSessionFactory;
 import io.goudai.rpc.exception.RpcException;
@@ -20,15 +20,15 @@ import java.io.IOException;
 @Slf4j
 public class Bootstrap implements Lifecycle {
     private Connector connector;
-    private ReactorPool reactorPool;
+    private Reactor reactor;
     private String serverIp;
     private int serverPort;
     private ProxyServiceFactory proxyServiceFactory;
     private final DefaultSessionFactory sessionFactory = new DefaultSessionFactory();
 
     public Bootstrap(String serverIp, int serverPort,int reactors) throws IOException {
-        reactorPool = new ReactorPool(reactors, sessionFactory);
-        connector = new Connector("goudai-rpc-connector-thread", reactorPool);
+        reactor = new Reactor(reactors, sessionFactory);
+        connector = new Connector("goudai-rpc-connector-thread", reactor);
         this.serverIp = serverIp;
         this.serverPort = serverPort;
 
@@ -41,7 +41,7 @@ public class Bootstrap implements Lifecycle {
     @Override
     public void startup() {
         this.connector.startup();
-        this.reactorPool.startup();
+        this.reactor.startup();
         proxyServiceFactory = new JavaProxyServiceFactory(new SingleInvoker(new RequestSessionFactory(serverIp, serverPort,connector,sessionFactory)));
     }
 
@@ -54,7 +54,7 @@ public class Bootstrap implements Lifecycle {
         }
         this.connector.shutdown();
         log.info("[{}] shutdown connector complete",this.connector);
-        this.reactorPool.shutdown();
-        log.info("[{}] shutdown reactorPool complete",this.reactorPool);
+        this.reactor.shutdown();
+        log.info("[{}] shutdown reactorPool complete",this.reactor);
     }
 }
