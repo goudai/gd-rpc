@@ -11,6 +11,7 @@
     <module>gd-registry</module>
     <module>gd-rpc</module>
     <module>gd-commons</module>
+    <module>gd-cluster</module>
   </modules>
 
 

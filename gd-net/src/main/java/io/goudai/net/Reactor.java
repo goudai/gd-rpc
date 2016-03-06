@@ -76,7 +76,7 @@ public class Reactor implements Lifecycle {
      */
     @Getter
     @Slf4j
-    private class RW extends Thread implements Lifecycle {
+    private static class RW extends Thread implements Lifecycle {
 
         /*处理读写事件的selector*/
         private final Selector selector;

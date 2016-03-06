@@ -6,6 +6,7 @@ package io.goudai.registry.protocol;
 
 import io.goudai.commons.util.Assert;
 import io.goudai.commons.util.NetUtil;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,14 +26,19 @@ import java.util.stream.Collectors;
  */
 @Getter
 @Setter
+@Builder
 public class Protocol {
+
     public static final String gdRPC = "gdRPC";
-
-    private String app = "gd-app", version = "v1.0.0", group = "gd-group", service, host, port, type;
-
+    private String application;
+    private String version;
+    private String group;
+    private String service;
+    private String host;
+    private String port;
+    private String type;
+    private long timeout;
     private Set<String> methods = new HashSet<>();
-
-    private int timeout = 3000;
 
     //将此URL装换为协议对像
     //"provider://host:port/com.goudai.test.UserService?timeout=1000&methods=test,getUser,findUser&app=gd-app&version=v1.0.0&group=gd-group"
@@ -43,7 +49,7 @@ public class Protocol {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        Protocol protocol = new Protocol();
+        Protocol protocol = Protocol.builder().build();
         String[] split = url.split("\\?");
         String[] split2 = split[0].split("//");
         String[] split3 = split2[1].split("/");
@@ -60,7 +66,7 @@ public class Protocol {
             String[] split5 = s.split("=");
             map.put(split5[0], split5[1]);
         }
-        protocol.app = map.get("app");
+        protocol.application = map.get("app");
         protocol.group = map.get("group");
         protocol.version = map.get("version");
         protocol.methods = new HashSet<>(Arrays.asList(map.get("methods").split(",")));
@@ -70,7 +76,7 @@ public class Protocol {
     public String value() {
         return this.type + "://" + this.host + ":" + this.port + "/" + this.service
                 + "?timeout=" + this.timeout + "&methods=" + this.methods.stream().collect(Collectors.joining(","))
-                + "&app=" + this.app + "&version=" + this.version + "&group=" + this.getGroup()
+                + "&app=" + this.application + "&version=" + this.version + "&group=" + this.getGroup()
                 ;
     }
 

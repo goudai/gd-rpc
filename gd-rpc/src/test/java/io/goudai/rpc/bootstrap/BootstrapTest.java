@@ -10,6 +10,7 @@ import io.goudai.rpc.User;
 import io.goudai.rpc.UserService;
 import io.goudai.rpc.bootstarp.Bootstrap;
 import io.goudai.rpc.handler.ResponseHandler;
+import io.goudai.rpc.listener.RpcListener;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
 
@@ -27,7 +28,8 @@ public class BootstrapTest {
                 .encoder(new DefaultEncoder<>(serializer))
                 .serializer(serializer)
                 .channelHandler(new ResponseHandler())
-                .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory("goudai-rpc-works",true)))
+                .sessionListener(new RpcListener())
+                .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory("goudai-rpc-works", true)))
                 .build()
                 .init();
     }

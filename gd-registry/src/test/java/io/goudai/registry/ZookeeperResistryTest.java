@@ -10,16 +10,17 @@ import org.junit.Test;
 public class ZookeeperResistryTest {
     @Test
     public void testRegistry() throws Exception {
-        ZooKeeRegistry zooKeeRegistry = new ZooKeeRegistry("127.0.0.1:2181", 3000);
-        Protocol protocol = new Protocol();
-        protocol.setType("provider");
-        protocol.setApp("test-app");
-        protocol.setHost(NetUtil.getLocalIp());
-        protocol.setPort("6161");
-        protocol.setService("com.test.service.UserService");
-        zooKeeRegistry.registry(protocol);
+        Registry zooKeeRegistry = new ZooKeeRegistry("127.0.0.1:2181", 3000);
+
+        Protocol protocol = Protocol.builder()
+                .type("provider")
+                .application("test-app")
+                .host(NetUtil.getLocalIp())
+                .port("6161")
+                .service("com.test.service.UserService").build();
+        zooKeeRegistry.register(protocol);
         protocol.setPort("8888");
-        zooKeeRegistry.registry(protocol);
+        zooKeeRegistry.register(protocol);
 
 
         zooKeeRegistry.lookup(protocol).forEach(System.out::println);

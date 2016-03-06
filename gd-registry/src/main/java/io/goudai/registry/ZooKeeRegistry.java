@@ -25,11 +25,13 @@ public class ZooKeeRegistry implements Registry {
 
     final String root = "gdRPC";
     private final String appConfigPathRoot = "appConfigPathRoot";
-    private final CuratorFramework client;
+    private  CuratorFramework client;
     private String zkAddress;
     private int timeout;
 
-
+    public ZooKeeRegistry() throws Exception {
+       this("127.0.0.1",2181);
+    }
 
     public ZooKeeRegistry(String zkAddress, int timeout) throws Exception {
         this.zkAddress = zkAddress;
@@ -58,7 +60,7 @@ public class ZooKeeRegistry implements Registry {
     }
 
     private String check(Protocol protocol, String type) throws Exception {
-        String path = "/" + protocol.getApp() + "." + protocol.getVersion() + "." + protocol.getGroup();
+        String path = "/" + protocol.getApplication() + "." + protocol.getVersion() + "." + protocol.getGroup();
         if (this.client.checkExists().forPath(path) == null) {
             client.create().forPath(path);
         }
