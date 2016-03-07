@@ -4,7 +4,7 @@ import io.goudai.commons.util.Assert;
 import io.goudai.commons.util.NetUtil;
 
 /**
- * Created by Administrator on 2016/3/4.
+ * Created by freeman on 2016/3/4.
  */
 public class ClusterConfig {
 

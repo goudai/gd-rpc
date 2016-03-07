@@ -1,6 +1,6 @@
 package io.goudai.net;
 
-import io.goudai.net.common.Lifecycle;
+import io.goudai.commons.life.LifeCycle;
 import io.goudai.net.context.ContextHolder;
 import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.factory.SessionFactory;
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by freeman on 2016/1/8.
  */
 @Slf4j
-public class Reactor implements Lifecycle {
+public class Reactor implements LifeCycle {
 
 
     private final static AtomicInteger selectorIndex = new AtomicInteger();
@@ -44,14 +44,14 @@ public class Reactor implements Lifecycle {
 
     @Override
     public void startup() {
-        for (Lifecycle life : this.rws) {
+        for (LifeCycle life : this.rws) {
             life.startup();
         }
     }
 
     @Override
     public void shutdown() {
-        for (Lifecycle life : this.rws) {
+        for (LifeCycle life : this.rws) {
             life.shutdown();
         }
     }
@@ -76,13 +76,12 @@ public class Reactor implements Lifecycle {
      */
     @Getter
     @Slf4j
-    private static class RW extends Thread implements Lifecycle {
+    private static class RW extends Thread implements LifeCycle {
 
         /*处理读写事件的selector*/
         private final Selector selector;
         /*负责构造具体的session*/
         private final SessionFactory sessionFactory;
-        /*由于channel注册不能进行跨线程，所以使用一个队列来进行异步的注册*/
         private final Queue<AsyncRegistrySocketChannel> asyncRegistrySocketChannels = new ConcurrentLinkedQueue<>();
         /*标记是否启动*/
         private final AtomicBoolean started = new AtomicBoolean(false);

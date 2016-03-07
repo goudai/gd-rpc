@@ -1,4 +1,4 @@
-package io.goudai.cluster;
+package io.goudai.cluster.domain;
 
 /**
  * Created by freeman on 2016/1/17.

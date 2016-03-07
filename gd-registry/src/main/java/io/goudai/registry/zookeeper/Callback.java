@@ -1,6 +1,6 @@
 package io.goudai.registry.zookeeper;
 
-import io.goudai.registry.protocol.Protocol;
+import io.goudai.registry.protocol.URL;
 
 import java.util.List;
 
@@ -9,5 +9,5 @@ import java.util.List;
  */
 public interface Callback {
 
-	void notify(List<Protocol> protocols, Exception e);
+    void notify(List<URL> protocols, CallbackType type, Exception e);
 }

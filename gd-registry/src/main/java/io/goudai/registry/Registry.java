@@ -1,5 +1,6 @@
 package io.goudai.registry;
 
+import io.goudai.commons.life.LifeCycle;
 import io.goudai.registry.protocol.Protocol;
 import io.goudai.registry.protocol.URL;
 import io.goudai.registry.zookeeper.Callback;
@@ -10,7 +11,7 @@ import java.util.List;
  * Created by freeman on 2016/2/21.
  */
 
-public interface Registry {
+public interface Registry extends LifeCycle {
 	/**
 	 * @param protocol
 	 *            暴露的协议
@@ -21,7 +22,7 @@ public interface Registry {
 	 *
 	 * @param protocol
 	 */
-	void unregister(Protocol protocol);
+	void unRegister(Protocol protocol);
 
 	/**
 	 *
@@ -34,7 +35,7 @@ public interface Registry {
 	 *
 	 * @param protocol
 	 */
-	void unsubscribe(Protocol protocol);
+	void unSubscribe(Protocol protocol);
 
 	/**
 	 * @param protocol

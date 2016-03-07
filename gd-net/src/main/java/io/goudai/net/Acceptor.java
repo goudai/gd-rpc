@@ -1,6 +1,6 @@
 package io.goudai.net;
 
-import io.goudai.net.common.Lifecycle;
+import io.goudai.commons.life.LifeCycle;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 用于accept新连接
  */
 @Slf4j
-public class Acceptor extends Thread implements Lifecycle {
+public class Acceptor extends Thread implements LifeCycle {
     /*处理accept的选择器*/
     private final Selector selector;
     /*

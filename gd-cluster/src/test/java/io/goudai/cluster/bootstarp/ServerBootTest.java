@@ -1,5 +1,7 @@
-package io.goudai.cluster;
+package io.goudai.cluster.bootstarp;
 
+import io.goudai.cluster.domain.SimpleUserService;
+import io.goudai.cluster.domain.UserService;
 import io.goudai.cluster.config.ClusterConfig;
 import io.goudai.cluster.handler.ClusterRequestHandler;
 import io.goudai.commons.factory.NamedThreadFactory;
@@ -17,25 +19,30 @@ import io.goudai.rpc.model.Response;
 import java.util.concurrent.Executors;
 
 /**
- * Created by freeman on 2016/3/6.
+ * Created by Administrator on 2016/3/7.
  */
-public class ClusterServerTest {
+public class ServerBootTest {
+    static {
 
+    }
 
     public static void main(String[] args) throws Exception {
-        ClusterConfig.application = "account";
+        ClusterConfig.application = "myApp";
+        //1 init context
         Serializer serializer = new JavaSerializer();
+        ZooKeeRegistry registry = new ZooKeeRegistry();
+        registry.startup();
         Context.<Request, Response>builder()
                 .decoder(new DefaultDecoder<>(serializer))
                 .encoder(new DefaultEncoder<>(serializer))
                 .serializer(serializer)
-                .channelHandler(new ClusterRequestHandler(new ZooKeeRegistry()))
+                .channelHandler(new ClusterRequestHandler(registry))
                 .sessionListener(new AbstractSessionListener())
                 .executorService(Executors.newFixedThreadPool(200, new NamedThreadFactory()))
                 .build()
                 .init();
         // 2 init rpc server
-        ServerBootstrap serverBootstrap = new ServerBootstrap(2, 9999);
+        ServerBootstrap serverBootstrap = new ServerBootstrap(2, 6161);
         //3 registry shutdown clean hook
         Runtime.getRuntime().addShutdownHook(new Thread(serverBootstrap::shutdown));
         //4 registry services..

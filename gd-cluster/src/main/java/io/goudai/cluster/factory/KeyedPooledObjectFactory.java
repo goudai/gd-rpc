@@ -7,6 +7,7 @@ import io.goudai.registry.Registry;
 import io.goudai.registry.protocol.Protocol;
 import io.goudai.registry.protocol.URL;
 import io.goudai.rpc.invoker.RequestSession;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
@@ -17,11 +18,13 @@ import java.net.InetSocketAddress;
 import static io.goudai.cluster.config.ClusterConfig.*;
 
 @Slf4j
+@RequiredArgsConstructor
 public class KeyedPooledObjectFactory extends BaseKeyedPooledObjectFactory<URL, RequestSession> {
 
-    private Connector connector;
-    private SessionFactory sessionFactory;
-    private Registry registry;
+    private final Connector connector;
+    private final SessionFactory sessionFactory;
+    private final Registry registry;
+
 
     @Override
     public RequestSession create(URL key) throws Exception {

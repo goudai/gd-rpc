@@ -1,6 +1,6 @@
 package io.goudai.net;
 
-import io.goudai.net.common.Lifecycle;
+import io.goudai.commons.life.LifeCycle;
 import io.goudai.net.context.ContextHolder;
 import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.Session;
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Getter
 @Slf4j
-public class Connector extends Thread implements Lifecycle {
+public class Connector extends Thread implements LifeCycle {
 
     private final Selector selector;
     private final Reactor reactor;

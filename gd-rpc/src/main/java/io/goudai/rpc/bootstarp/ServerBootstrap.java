@@ -2,7 +2,7 @@ package io.goudai.rpc.bootstarp;
 
 import io.goudai.net.Acceptor;
 import io.goudai.net.Reactor;
-import io.goudai.net.common.Lifecycle;
+import io.goudai.commons.life.LifeCycle;
 import io.goudai.net.context.ContextHolder;
 import io.goudai.net.session.factory.DefaultSessionFactory;
 import io.goudai.rpc.handler.ServiceRegistryHandler;
@@ -16,7 +16,7 @@ import java.util.concurrent.CountDownLatch;
  * Created by freeman on 2016/1/28.
  */
 @Slf4j
-public class ServerBootstrap implements Lifecycle {
+public class ServerBootstrap implements LifeCycle {
 
     private final static int DEFAULT_REACTOR_NUM = 1;
     private final static CountDownLatch latch = new CountDownLatch(1);
