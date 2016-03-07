@@ -11,35 +11,36 @@ import java.util.List;
  */
 
 public interface Registry {
-    /**
-     * @param protocol 暴露的协议
-     */
-    void register(Protocol protocol);
+	/**
+	 * @param protocol
+	 *            暴露的协议
+	 */
+	void register(Protocol protocol);
 
-    /**
-     *
-     * @param protocol
-     */
-    void unRegister(Protocol protocol);
+	/**
+	 *
+	 * @param protocol
+	 */
+	void unregister(Protocol protocol);
 
-    /**
-     *
-     * @param protocol
-     * @param callback
-     */
-    void subscribe(Protocol protocol,Callback callback);
+	/**
+	 *
+	 * @param protocol
+	 * @param callback
+	 */
+	void subscribe(Protocol protocol, Callback callback);
 
-    /**
-     *
-     * @param protocol
-     */
-    void unSubscribe(Protocol protocol);
+	/**
+	 *
+	 * @param protocol
+	 */
+	void unsubscribe(Protocol protocol);
 
-    /**
-     * @param protocol
-     * @return //"provider://host:port/com.goudai.test.UserService?timeout=1000&methods=test,getUser,findUser&app=gd-app&version=v1.0.0&group=gd-group"
-     */
-    List<URL> lookup(Protocol protocol);
-
+	/**
+	 * @param protocol
+	 * @return //
+	 *         "provider://host:port/com.goudai.test.UserService?timeout=1000&methods=test,getUser,findUser&app=gd-app&version=v1.0.0&group=gd-group"
+	 */
+	List<URL> lookup(Protocol protocol);
 
 }
