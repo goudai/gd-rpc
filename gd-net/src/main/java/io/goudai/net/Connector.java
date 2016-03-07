@@ -1,6 +1,6 @@
 package io.goudai.net;
 
-import io.goudai.commons.life.LifeCycle;
+import io.goudai.commons.LifeCycle;
 import io.goudai.net.context.ContextHolder;
 import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.Session;

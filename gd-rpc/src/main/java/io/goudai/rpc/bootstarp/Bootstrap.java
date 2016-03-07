@@ -1,8 +1,8 @@
 package io.goudai.rpc.bootstarp;
 
+import io.goudai.commons.LifeCycle;
 import io.goudai.net.Connector;
 import io.goudai.net.Reactor;
-import io.goudai.commons.life.LifeCycle;
 import io.goudai.net.session.factory.DefaultSessionFactory;
 import io.goudai.rpc.exception.RpcException;
 import io.goudai.rpc.invoker.RequestSessionFactory;

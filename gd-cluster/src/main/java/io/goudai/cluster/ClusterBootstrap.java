@@ -3,7 +3,7 @@ package io.goudai.cluster;
 import io.goudai.cluster.balance.Balance;
 import io.goudai.cluster.factory.KeyedPooledObjectFactory;
 import io.goudai.cluster.invoker.ClusterInvoker;
-import io.goudai.commons.life.LifeCycle;
+import io.goudai.commons.LifeCycle;
 import io.goudai.net.Connector;
 import io.goudai.net.Reactor;
 import io.goudai.net.session.factory.DefaultSessionFactory;

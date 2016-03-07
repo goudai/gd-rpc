@@ -1,6 +1,6 @@
 package io.goudai.registry;
 
-import io.goudai.commons.life.LifeCycle;
+import io.goudai.commons.LifeCycle;
 import io.goudai.registry.protocol.Protocol;
 import io.goudai.registry.protocol.URL;
 import io.goudai.registry.zookeeper.Callback;
