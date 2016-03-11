@@ -76,10 +76,13 @@ public class ClusterInvoker implements Invoker, Callback, Balance {
 
     }
 
-    //TODO
     @Override
     public void notify(List<URL> urls, CallbackType type, Exception e) {
-
+    	if(urls != null && !urls.isEmpty()) {
+    		URL url0 = urls.get(0);
+    		String key = getServiceKey(url0.getService());
+    		availableHostCache.put(key, urls);
+    	}
     }
 
 

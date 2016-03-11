@@ -25,172 +25,167 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class ZooKeeRegistry implements Registry {
 
-    final String root = "gdRPC";
-    private CuratorFramework client;
-    private String zkAddress;
-    private int timeout;
+	final String root = "gdRPC";
+	private CuratorFramework client;
+	private String zkAddress;
+	private int timeout;
 
-    private Map<String, PathChildrenCache> pathChildrenCacheMap = new ConcurrentHashMap<>();
+	private Map<String, PathChildrenCache> pathChildrenCacheMap = new ConcurrentHashMap<>();
 
-    public ZooKeeRegistry() {
-        this("127.0.0.1", 2181);
-    }
+	public ZooKeeRegistry() {
+		this("127.0.0.1", 2181);
+	}
 
-    public ZooKeeRegistry(String zkAddress, int timeout) {
-        this.zkAddress = zkAddress;
-        this.timeout = timeout;
-        client = CuratorFrameworkFactory.builder()
-                .retryPolicy(new RetryNTimes(Integer.MAX_VALUE, 3000))
-                .connectionTimeoutMs(timeout)
-                .namespace(root)
-                .connectString(zkAddress)
-                .build();
-        this.client.start();
-    }
+	public ZooKeeRegistry(String zkAddress, int timeout) {
+		this.zkAddress = zkAddress;
+		this.timeout = timeout;
+		client = CuratorFrameworkFactory.builder().retryPolicy(new RetryNTimes(Integer.MAX_VALUE, 3000)).connectionTimeoutMs(timeout).namespace(root)
+				.connectString(zkAddress).build();
+		this.client.start();
+	}
 
-    @Override
-    public void register(Protocol protocol) {
-        try {
-            String path = check(protocol, "provider") + "/" + URLEncoder.encode(protocol.value(), "utf-8");
-            if (this.client.checkExists().forPath(path) == null) {
-                this.client.create().withMode(CreateMode.EPHEMERAL).forPath(path);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("registry service fail！service=[" + protocol.getService() + "]", e);
-        }
-    }
+	@Override
+	public void register(Protocol protocol) {
+		try {
+			String path = check(protocol, "provider") + "/" + URLEncoder.encode(protocol.value(), "utf-8");
+			if (this.client.checkExists().forPath(path) == null) {
+				this.client.create().withMode(CreateMode.EPHEMERAL).forPath(path);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("registry service fail！service=[" + protocol.getService() + "]", e);
+		}
+	}
 
-    private String check(Protocol protocol, String type) throws Exception {
-        String path = "/" + protocol.getApplication() + "." + protocol.getVersion() + "." + protocol.getGroup();
-        if (this.client.checkExists().forPath(path) == null) {
-            client.create().forPath(path);
-        }
-        // check service
-        path = path + "/" + protocol.getService();
-        if (this.client.checkExists().forPath(path) == null) {
-            client.create().forPath(path);
-        }
-        path = path + "/" + type;
-        if (this.client.checkExists().forPath(path) == null) {
-            client.create().forPath(path);
-        }
-        return path;
-    }
+	private String check(Protocol protocol, String type) throws Exception {
+		String path = "/" + protocol.getApplication() + "." + protocol.getVersion() + "." + protocol.getGroup();
+		if (this.client.checkExists().forPath(path) == null) {
+			client.create().forPath(path);
+		}
+		// check service
+		path = path + "/" + protocol.getService();
+		if (this.client.checkExists().forPath(path) == null) {
+			client.create().forPath(path);
+		}
+		path = path + "/" + type;
+		if (this.client.checkExists().forPath(path) == null) {
+			client.create().forPath(path);
+		}
+		return path;
+	}
 
-    @Override
-    public void unRegister(Protocol protocol) {
-        try {
-            String path = check(protocol, "provider") + "/" + URLEncoder.encode(protocol.value(), "utf-8");
-            if (this.client.checkExists().forPath(path) == null) {
-                this.client.delete().forPath(path);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("unregistry service fail！service=[" + protocol.getService() + "]", e);
-        }
-    }
+	@Override
+	public void unRegister(Protocol protocol) {
+		try {
+			String path = check(protocol, "provider") + "/" + URLEncoder.encode(protocol.value(), "utf-8");
+			if (this.client.checkExists().forPath(path) == null) {
+				this.client.delete().forPath(path);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("unregistry service fail！service=[" + protocol.getService() + "]", e);
+		}
+	}
 
-    @Override
-    public void subscribe(Protocol protocol, Callback callback) {
-        try {
-            String path = check(protocol, "provider");
-            PathChildrenCache cache = pathChildrenCacheMap.get(path);
-            if (cache == null) {
-                cache = new PathChildrenCache(client, path, false);
-                cache.getListenable().addListener(new PathChildrenCacheListener(cache, path, callback));
-                cache.start();
-                pathChildrenCacheMap.put(path, cache);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("subscribe service fail！service=[" + protocol.getService() + "]", e);
-        }
-    }
+	@Override
+	public void subscribe(Protocol protocol, Callback callback) {
+		try {
+			String path = check(protocol, "provider");
+			PathChildrenCache cache = pathChildrenCacheMap.get(path);
+			if (cache == null) {
+				cache = new PathChildrenCache(client, path, false);
+				cache.getListenable().addListener(new PathChildrenCacheListener(cache, callback));
+				cache.start();
+				pathChildrenCacheMap.put(path, cache);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("subscribe service fail！service=[" + protocol.getService() + "]", e);
+		}
+	}
 
-    @Override
-    public void unSubscribe(Protocol protocol) {
-        try {
-            String path = check(protocol, "provider");
-            PathChildrenCache cache = pathChildrenCacheMap.get(path);
-            if (cache != null) {
-                CloseableUtils.closeQuietly(cache);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("unsubscribe service fail！service=[" + protocol.getService() + "]", e);
-        }
-    }
+	@Override
+	public void unSubscribe(Protocol protocol) {
+		try {
+			String path = check(protocol, "provider");
+			PathChildrenCache removed = pathChildrenCacheMap.remove(path);
+			if (removed != null) {
+				CloseableUtils.closeQuietly(removed);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("unsubscribe service fail！service=[" + protocol.getService() + "]", e);
+		}
+	}
 
-    @Override
-    public List<URL> lookup(Protocol protocol) {
-        List<URL> result = new ArrayList<>();
-        try {
-            String path = check(protocol, "provider");
-            Set<String> strings = new HashSet<>(this.client.getChildren().forPath(path));
-            strings.forEach(s -> result.add(URL.valueOf(s)));
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            // log.warn("The available service is not found, please check the registration center or service provider. {}",
-            // protocol);
-        }
-        return result;
-    }
+	@Override
+	public List<URL> lookup(Protocol protocol) {
+		List<URL> result = new ArrayList<>();
+		try {
+			String path = check(protocol, "provider");
+			Set<String> strings = new HashSet<>(this.client.getChildren().forPath(path));
+			strings.forEach(s -> result.add(URL.valueOf(s)));
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			// log.warn("The available service is not found, please check the registration center or service provider. {}",
+			// protocol);
+		}
+		return result;
+	}
 
-    @Override
-    public void startup() {
-//        this.client.start();
-    }
+	@Override
+	public void startup() {
+		// this.client.start();
+	}
 
-    @Override
-    public void shutdown() {
-        this.client.close();
-    }
+	@Override
+	public void shutdown() {
+		this.client.close();
+	}
+
+	public static class PathChildrenCacheListener implements org.apache.curator.framework.recipes.cache.PathChildrenCacheListener {
+
+		private Callback callback;
+
+		private PathChildrenCache pathChildrenCache;
 
 
-    public static class PathChildrenCacheListener implements org.apache.curator.framework.recipes.cache.PathChildrenCacheListener {
+		public PathChildrenCacheListener(PathChildrenCache pathChildrenCache, Callback callback) {
+			super();
+			this.pathChildrenCache = pathChildrenCache;
+			this.callback = callback;
+		}
 
-        private Callback callback;
+		@Override
+		public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+			List<URL> urls = new ArrayList<>();
+			try {
+				PathChildrenCacheEvent.Type eventType = event.getType();
+				switch (eventType) {
+				case CONNECTION_RECONNECTED:
+					log.info("Connection reconnected");
+					break;
+				case CONNECTION_SUSPENDED:
+				case CONNECTION_LOST:
+					log.warn("Connection error, waiting...");
+					break;
+				case CHILD_ADDED:
+					call(client, urls, CallbackType.CHILD_ADDED);
+					break;
+				case CHILD_UPDATED:
+					call(client, urls, CallbackType.CHILD_UPDATED);
+					break;
+				case CHILD_REMOVED:
+					call(client, urls, CallbackType.CHILD_REMOVED);
+					break;
+				default:
+					break;
+				}
+			} catch (Exception e) {
+				callback.notify(urls, null, e);
+			}
+		}
 
-        private PathChildrenCache pathChildrenCache;
-
-        private String path;
-
-        public PathChildrenCacheListener(PathChildrenCache pathChildrenCache, String path, Callback callback) {
-            super();
-            this.pathChildrenCache = pathChildrenCache;
-            this.path = path;
-            this.callback = callback;
-        }
-
-        @Override
-        public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-            List<URL> urls = new ArrayList<>();
-            try {
-                PathChildrenCacheEvent.Type eventType = event.getType();
-                switch (eventType) {
-                    case CONNECTION_RECONNECTED:
-                        pathChildrenCache.rebuild();
-                        break;
-                    case CONNECTION_SUSPENDED:
-                    case CONNECTION_LOST:
-                        log.warn("Connection error,waiting...");
-                        break;
-                    case CHILD_ADDED:
-                        call(client, urls, CallbackType.CHILD_ADDED);
-                        break;
-                    case CHILD_UPDATED:
-                        call(client, urls, CallbackType.CHILD_UPDATED);
-                        break;
-                    case CHILD_REMOVED:
-                        call(client, urls, CallbackType.CHILD_REMOVED);
-                        break;
-                }
-            } catch (Exception e) {
-                callback.notify(urls, null, e);
-            }
-        }
-
-        private void call(CuratorFramework client, List<URL> urls, CallbackType type) throws Exception {
-            client.getChildren().forPath(path).forEach(url -> urls.add(URL.valueOf(url)));
-            callback.notify(urls, type, null);
-        }
-    }
+		private void call(CuratorFramework client, List<URL> urls, CallbackType type) throws Exception {
+			pathChildrenCache.getCurrentData().forEach(v -> urls.add(URL.valueOf(v.getPath())));
+			callback.notify(urls, type, null);
+		}
+	}
 
 }
