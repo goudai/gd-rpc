@@ -81,42 +81,7 @@
         }
 ### 集群RPC调用 依赖zookeeper注册中心
 #### rpc server
-        public class ClusterBootstrapTest {
-            static {
-                // init
-                Serializer serializer = new JavaSerializer();
-                Context.<Request, Response>builder()
-                        .decoder(new DefaultDecoder<>(serializer))
-                        .encoder(new DefaultEncoder<>(serializer))
-                        .serializer(serializer)
-                        .channelHandler(new ResponseHandler())
-                        .sessionListener(new RpcListener())
-                        .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory("goudai-rpc-works", true)))
-                        .build()
-                        .init();
-            }
-            public static void main(String[] args) throws Exception {
-                //application name is requied
-                ClusterConfig.application = "myApp";
-                //2 create client
-                ZooKeeRegistry registry = new ZooKeeRegistry();
-                ClusterBootstrap clusterBootstrap = new ClusterBootstrap(registry, 1);
-                //3 started client
-                clusterBootstrap.startup();
-                //4 get proxy service
-                UserService service = clusterBootstrap.getService(UserService.class);
-                //5 remote invoker
-                User add = service.add(new User());
-                // out result
-                System.err.println(add);
-                //7 shutdown
-                clusterBootstrap.shutdown();
-            }
-        }
-### 集群client
         public class ServerBootTest {
-
-
              public static void main(String[] args) throws Exception {
                  ClusterConfig.application = "myApp";
                  //1 init context
@@ -143,3 +108,37 @@
                  serverBootstrap.startup();
              }
          }
+
+### 集群client
+        public class ClusterBootstrapTest {
+                   static {
+                       // init
+                       Serializer serializer = new JavaSerializer();
+                       Context.<Request, Response>builder()
+                               .decoder(new DefaultDecoder<>(serializer))
+                               .encoder(new DefaultEncoder<>(serializer))
+                               .serializer(serializer)
+                               .channelHandler(new ResponseHandler())
+                               .sessionListener(new RpcListener())
+                               .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory("goudai-rpc-works", true)))
+                               .build()
+                               .init();
+                   }
+                   public static void main(String[] args) throws Exception {
+                       //application name is requied
+                       ClusterConfig.application = "myApp";
+                       //2 create client
+                       ZooKeeRegistry registry = new ZooKeeRegistry();
+                       ClusterBootstrap clusterBootstrap = new ClusterBootstrap(registry, 1);
+                       //3 started client
+                       clusterBootstrap.startup();
+                       //4 get proxy service
+                       UserService service = clusterBootstrap.getService(UserService.class);
+                       //5 remote invoker
+                       User add = service.add(new User());
+                       // out result
+                       System.err.println(add);
+                       //7 shutdown
+                       clusterBootstrap.shutdown();
+                   }
+               }
