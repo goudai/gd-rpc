@@ -1,9 +1,8 @@
 package io.goudai.cluster.bootstarp;
 
-import io.goudai.cluster.ClusterBootstrap;
+import io.goudai.cluster.config.ClusterConfig;
 import io.goudai.cluster.domain.User;
 import io.goudai.cluster.domain.UserService;
-import io.goudai.cluster.config.ClusterConfig;
 import io.goudai.commons.factory.NamedThreadFactory;
 import io.goudai.net.context.Context;
 import io.goudai.net.handler.codec.DefaultDecoder;
@@ -23,7 +22,7 @@ import java.util.concurrent.Executors;
  */
 public class ClusterBootstrapTest {
     static {
-        //1 init
+        // init
         Serializer serializer = new JavaSerializer();
         Context.<Request, Response>builder()
                 .decoder(new DefaultDecoder<>(serializer))
@@ -35,9 +34,8 @@ public class ClusterBootstrapTest {
                 .build()
                 .init();
     }
-
     public static void main(String[] args) throws Exception {
-
+        //application name is requied
         ClusterConfig.application = "myApp";
         //2 create client
         ZooKeeRegistry registry = new ZooKeeRegistry();
@@ -52,6 +50,5 @@ public class ClusterBootstrapTest {
         System.err.println(add);
         //7 shutdown
         clusterBootstrap.shutdown();
-
     }
 }

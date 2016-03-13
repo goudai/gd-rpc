@@ -20,7 +20,7 @@ public class SingleInvoker implements Invoker {
         GenericObjectPoolConfig config = new GenericObjectPoolConfig();
         config.setMaxIdle(100);
         config.setMaxTotal(100);
-        config.setTestOnReturn(true);
+//        config.setTestOnReturn(true);
         this.requestSessionPool = new Commons2Pool<>(config, objectFactory);
     }
 

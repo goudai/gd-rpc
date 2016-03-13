@@ -1,14 +1,16 @@
-package io.goudai.rpc.performance;
+package io.goudai.cluster.perf;
 
+import io.goudai.cluster.bootstarp.ClusterBootstrap;
+import io.goudai.cluster.config.ClusterConfig;
+import io.goudai.cluster.domain.User;
+import io.goudai.cluster.domain.UserService;
 import io.goudai.commons.factory.NamedThreadFactory;
 import io.goudai.net.context.Context;
 import io.goudai.net.handler.codec.DefaultDecoder;
 import io.goudai.net.handler.codec.DefaultEncoder;
 import io.goudai.net.handler.serializer.JavaSerializer;
 import io.goudai.net.handler.serializer.Serializer;
-import io.goudai.rpc.User;
-import io.goudai.rpc.UserService;
-import io.goudai.rpc.bootstarp.SingleBootstrap;
+import io.goudai.registry.ZooKeeRegistry;
 import io.goudai.rpc.bootstarp.Bootstrap;
 import io.goudai.rpc.handler.ResponseHandler;
 import io.goudai.rpc.listener.RpcListener;
@@ -23,6 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class PerfClientTest {
     static {
+        //1 init
         Serializer serializer = new JavaSerializer();
         Context.<Request, Response>builder()
                 .decoder(new DefaultDecoder<>(serializer))
@@ -30,23 +33,28 @@ public class PerfClientTest {
                 .serializer(serializer)
                 .channelHandler(new ResponseHandler())
                 .sessionListener(new RpcListener())
-                .executorService(Executors.newFixedThreadPool(100, new NamedThreadFactory("works",true)))
+                .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory("goudai-rpc-works", true)))
                 .build()
                 .init();
     }
+
     public static void main(String[] args) throws Exception {
+
+        ClusterConfig.application = "myApp";
+        //2 create client
+        ZooKeeRegistry registry = new ZooKeeRegistry();
         //cont requset N * treadCount
         final long N = 1000000;
         final int threadCount = 50;
         final AtomicLong counter = new AtomicLong(0);
         Bootstrap[] bootstraps = new Bootstrap[threadCount];
-        Bootstrap bootstrap =  new SingleBootstrap("localhost", 9999,2);
+        Bootstrap bootstrap = new ClusterBootstrap(registry, 1);
         bootstrap.startup();
 
         System.out.println("init success");
         final long startTime = System.currentTimeMillis();
         Task[] tasks = new Task[threadCount];
-            UserService service = bootstrap.getService(UserService.class);
+        UserService service = bootstrap.getService(UserService.class);
         for (int i = 0; i < threadCount; i++) {
             tasks[i] = new Task(service, counter, startTime, N);
         }
@@ -57,16 +65,17 @@ public class PerfClientTest {
         for (Task task : tasks) {
             task.join();
         }
-            bootstrap.shutdown();
+        bootstrap.shutdown();
     }
 }
+
 class Task extends Thread {
     private final UserService userService;
     private final AtomicLong counter;
     private final long startTime;
     private final long N;
 
-    public Task( UserService userService, AtomicLong counter, long startTime, long N) {
+    public Task(UserService userService, AtomicLong counter, long startTime, long N) {
         this.userService = userService;
         this.counter = counter;
         this.startTime = startTime;

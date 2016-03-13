@@ -8,6 +8,7 @@ import io.goudai.net.handler.serializer.JavaSerializer;
 import io.goudai.net.handler.serializer.Serializer;
 import io.goudai.rpc.User;
 import io.goudai.rpc.UserService;
+import io.goudai.rpc.bootstarp.SingleBootstrap;
 import io.goudai.rpc.bootstarp.Bootstrap;
 import io.goudai.rpc.handler.ResponseHandler;
 import io.goudai.rpc.listener.RpcListener;
@@ -36,7 +37,7 @@ public class BootstrapTest {
 
     public static void main(String[] args) throws Exception {
         //2 create client
-        Bootstrap bootstrap = new Bootstrap("localhost", 9999,1);
+        Bootstrap bootstrap = new SingleBootstrap("localhost", 9999,1);
         //3 started client
         bootstrap.startup();
         //4 get proxy service

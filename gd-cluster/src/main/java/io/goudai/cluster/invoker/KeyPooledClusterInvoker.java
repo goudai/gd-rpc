@@ -1,7 +1,7 @@
 package io.goudai.cluster.invoker;
 
 import io.goudai.cluster.balance.Balance;
-import io.goudai.cluster.factory.ClusterRequestSessionFactory;
+import io.goudai.cluster.util.MethodUtil;
 import io.goudai.net.Connector;
 import io.goudai.net.session.factory.DefaultSessionFactory;
 import io.goudai.net.session.factory.SessionFactory;
@@ -11,12 +11,17 @@ import io.goudai.registry.protocol.URL;
 import io.goudai.registry.zookeeper.CallbackType;
 import io.goudai.rpc.exception.RpcException;
 import io.goudai.rpc.invoker.Invoker;
-import io.goudai.rpc.invoker.RequestSessionFactory;
-import io.goudai.rpc.invoker.SingleInvoker;
+import io.goudai.rpc.invoker.RequestSession;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
+import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +33,7 @@ import static io.goudai.cluster.config.ClusterConfig.*;
  * Created by freeman on 2016/3/4.
  */
 @Slf4j
-public class ClusterInvoker implements Invoker {
+public class KeyPooledClusterInvoker implements Invoker {
 
     private final Registry registry;
     private final Balance balance;
@@ -39,13 +44,43 @@ public class ClusterInvoker implements Invoker {
     /**
      * URL@6B1635E11--> [RequestSession@6e06451e,RequestSession@6e05351e]
      */
-    private final ConcurrentHashMap<URL, SingleInvoker> availableInvokerCache = new ConcurrentHashMap<>();
+    private final GenericKeyedObjectPool<URL, RequestSession> availableSessionCache;
 
 
-    public ClusterInvoker(Registry registry, Balance balance, Connector connector) {
+    public KeyPooledClusterInvoker(Registry registry, Balance balance, Connector connector) {
         this.registry = registry;
         this.balance = balance;
         this.connector = connector;
+        GenericKeyedObjectPoolConfig genericKeyedObjectPoolConfig = new GenericKeyedObjectPoolConfig();
+        genericKeyedObjectPoolConfig.setMaxTotal(500);
+        availableSessionCache = new GenericKeyedObjectPool<>(new BaseKeyedPooledObjectFactory<URL, RequestSession>() {
+            @Override
+            public RequestSession create(URL url) throws Exception {
+                RequestSession session = new RequestSession(connector, new InetSocketAddress(url.getHost(), url.getPort()), sessionFactory);
+                InetSocketAddress localAddress = (InetSocketAddress) session.getSession().getSocketChannel().getLocalAddress();
+                //注册服务到注册中心
+                Protocol protocol = Protocol
+                        .builder()
+                        .application(application)
+                        .version(version)
+                        .group(group)
+                        .host(host)
+                        .port(localAddress.getPort())
+                        .service(url.getService())
+                        .timeout(timeout)
+                        .type(CONSUMER)
+                        .methods(MethodUtil.getMethods(url.getService()))
+                        .build();
+                registry.register(protocol);
+                log.info("register consumer to registry --> {}", protocol);
+                return session;
+            }
+
+            @Override
+            public PooledObject<RequestSession> wrap(RequestSession value) {
+                return new DefaultPooledObject<>(value);
+            }
+        });
 
     }
 
@@ -64,8 +99,17 @@ public class ClusterInvoker implements Invoker {
                     "application -->" + application + " version -->" + version + " group -->" + group + " service -->" + request.getService());
         }
         final URL url = this.balance.select(urls);
-        SingleInvoker singleInvoker = availableInvokerCache.get(url);
-        return singleInvoker.invoke(request);
+        Response response = Response.builder().id(request.getId()).build();
+        RequestSession requestSession = null;
+        try {
+            requestSession = this.availableSessionCache.borrowObject(url);
+            response = requestSession.invoker(request);
+        } catch (Exception e) {
+            response.setException(e);
+        } finally {
+            this.availableSessionCache.returnObject(url, requestSession);
+        }
+        return response;
     }
 
     @Override
@@ -123,7 +167,6 @@ public class ClusterInvoker implements Invoker {
                     for (URL url : newUrls) {
                         // new host add to host cache
                         if (!urlList.contains(url)) {
-                            makeSingleInvoker(url);
                             urlList.add(url);
                         }
                     }
@@ -135,8 +178,7 @@ public class ClusterInvoker implements Invoker {
                         URL next = iterator.next();
                         if (!newUrls.contains(next)) {
                             iterator.remove();
-                            this.availableInvokerCache.get(next).shutdown();
-                            this.availableInvokerCache.remove(next);
+                            this.availableSessionCache.clear(next);
                         }
                     }
                 }
@@ -163,9 +205,8 @@ public class ClusterInvoker implements Invoker {
                     .type("provider")
                     .build();
             urls = registry.lookup(protocol);
-            if(urls.isEmpty()) return urls;
+            if (urls.isEmpty()) return urls;
             availableHostCache.put(key, urls);
-            urls.forEach(this::makeSingleInvoker);
             URL url = urls.get(0);
             protocol.setHost(url.getHost());
             protocol.setPort(url.getPort());
@@ -174,11 +215,6 @@ public class ClusterInvoker implements Invoker {
         return urls;
     }
 
-
-    private void makeSingleInvoker(URL url) {
-        RequestSessionFactory requestSessionFactory = new ClusterRequestSessionFactory(url, registry, connector, sessionFactory);
-        availableInvokerCache.put(url, new SingleInvoker(requestSessionFactory));
-    }
 
     private String getServiceKey(String service) {
         return application + "#" + version + "#" + group + "#" + service;

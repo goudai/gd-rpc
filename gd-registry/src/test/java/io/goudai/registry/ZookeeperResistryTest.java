@@ -16,10 +16,10 @@ public class ZookeeperResistryTest {
                 .type("provider")
                 .application("test-app")
                 .host(NetUtil.getLocalIp())
-                .port("6161")
+                .port(6161)
                 .service("com.test.service.UserService").build();
         zooKeeRegistry.register(protocol);
-        protocol.setPort("8888");
+        protocol.setPort(8888);
         zooKeeRegistry.register(protocol);
 
 

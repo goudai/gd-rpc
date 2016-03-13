@@ -79,3 +79,67 @@
 
             }
         }
+### 集群RPC调用 依赖zookeeper注册中心
+#### rpc server
+        public class ClusterBootstrapTest {
+            static {
+                // init
+                Serializer serializer = new JavaSerializer();
+                Context.<Request, Response>builder()
+                        .decoder(new DefaultDecoder<>(serializer))
+                        .encoder(new DefaultEncoder<>(serializer))
+                        .serializer(serializer)
+                        .channelHandler(new ResponseHandler())
+                        .sessionListener(new RpcListener())
+                        .executorService(Executors.newFixedThreadPool(20, new NamedThreadFactory("goudai-rpc-works", true)))
+                        .build()
+                        .init();
+            }
+            public static void main(String[] args) throws Exception {
+                //application name is requied
+                ClusterConfig.application = "myApp";
+                //2 create client
+                ZooKeeRegistry registry = new ZooKeeRegistry();
+                ClusterBootstrap clusterBootstrap = new ClusterBootstrap(registry, 1);
+                //3 started client
+                clusterBootstrap.startup();
+                //4 get proxy service
+                UserService service = clusterBootstrap.getService(UserService.class);
+                //5 remote invoker
+                User add = service.add(new User());
+                // out result
+                System.err.println(add);
+                //7 shutdown
+                clusterBootstrap.shutdown();
+            }
+        }
+### 集群client
+        public class ServerBootTest {
+
+
+             public static void main(String[] args) throws Exception {
+                 ClusterConfig.application = "myApp";
+                 //1 init context
+                 Serializer serializer = new JavaSerializer();
+                 ZooKeeRegistry registry = new ZooKeeRegistry();
+                 registry.startup();
+                 Context.<Request, Response>builder()
+                         .decoder(new DefaultDecoder<>(serializer))
+                         .encoder(new DefaultEncoder<>(serializer))
+                         .serializer(serializer)
+                         .channelHandler(new ClusterRequestHandler(registry))
+                         .sessionListener(new AbstractSessionListener())
+                         .executorService(Executors.newFixedThreadPool(200, new NamedThreadFactory()))
+                         .build()
+                         .init();
+                 ClusterConfig.port = 6161;
+                 // 2 init rpc server
+                 ClusterServerBootstrap serverBootstrap = new ClusterServerBootstrap(2);
+                 //4 registry services..
+                 serverBootstrap.registry(UserService.class, new SimpleUserService());
+                 //3 registry shutdown clean hook
+                 Runtime.getRuntime().addShutdownHook(new Thread(serverBootstrap::shutdown));
+                 //5 started rpc server and await thread
+                 serverBootstrap.startup();
+             }
+         }

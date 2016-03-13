@@ -28,7 +28,7 @@ public class ClusterRequestHandler extends RequestHandler {
                 .version(version)
                 .group(group)
                 .host(host)
-                .port(String.valueOf(port))
+                .port(port)
                 .service(interClass.getName())
                 .timeout(timeout)
                 .type(PROVIDER)

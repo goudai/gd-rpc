@@ -1,16 +1,11 @@
-package io.goudai.cluster;
+package io.goudai.rpc.bootstarp;
 
-import io.goudai.cluster.balance.Balance;
-import io.goudai.cluster.factory.KeyedPooledObjectFactory;
-import io.goudai.cluster.invoker.ClusterInvoker;
-import io.goudai.commons.LifeCycle;
 import io.goudai.net.Connector;
 import io.goudai.net.Reactor;
 import io.goudai.net.session.factory.DefaultSessionFactory;
-import io.goudai.registry.Registry;
-import io.goudai.registry.ZooKeeRegistry;
 import io.goudai.rpc.exception.RpcException;
-import io.goudai.rpc.invoker.Invoker;
+import io.goudai.rpc.invoker.RequestSessionFactory;
+import io.goudai.rpc.invoker.SingleInvoker;
 import io.goudai.rpc.listener.SessionManager;
 import io.goudai.rpc.proxy.JavaProxyServiceFactory;
 import io.goudai.rpc.proxy.ProxyServiceFactory;
@@ -22,19 +17,22 @@ import java.io.IOException;
  * Created by vip on 2016/1/28.
  */
 @Slf4j
-public class ClusterBootstrap implements LifeCycle {
+public class SingleBootstrap implements Bootstrap {
     private final DefaultSessionFactory sessionFactory = new DefaultSessionFactory();
     private Connector connector;
     private Reactor reactor;
-    private Registry registry;
+    private String serverIp;
+    private int serverPort;
     private ProxyServiceFactory proxyServiceFactory;
 
-    public ClusterBootstrap(Registry registry, int reactors) throws IOException {
+    public SingleBootstrap(String serverIp, int serverPort, int reactors) throws IOException {
         reactor = new Reactor(reactors, sessionFactory);
         connector = new Connector("goudai-rpc-connector-thread", reactor);
-        this.registry = registry;
+        this.serverIp = serverIp;
+        this.serverPort = serverPort;
     }
 
+    @Override
     public <T> T getService(Class<T> clazz) {
         return proxyServiceFactory.createServiceProxy(clazz);
     }
@@ -43,11 +41,7 @@ public class ClusterBootstrap implements LifeCycle {
     public void startup() {
         this.connector.startup();
         this.reactor.startup();
-        this.registry.startup();
-        KeyedPooledObjectFactory keyedPooledObjectFactory = new KeyedPooledObjectFactory(connector, sessionFactory, registry);
-        Invoker invoker = new ClusterInvoker(new ZooKeeRegistry(), keyedPooledObjectFactory, new Balance() {
-        });
-        proxyServiceFactory = new JavaProxyServiceFactory(invoker);
+        proxyServiceFactory = new JavaProxyServiceFactory(new SingleInvoker(new RequestSessionFactory(serverIp, serverPort, connector, sessionFactory)));
     }
 
     @Override
@@ -61,7 +55,5 @@ public class ClusterBootstrap implements LifeCycle {
         log.info("[{}] shutdown connector complete", this.connector);
         this.reactor.shutdown();
         log.info("[{}] shutdown reactorPool complete", this.reactor);
-        registry.shutdown();
-
     }
 }

@@ -3,6 +3,7 @@ package io.goudai.rpc.invoker;
 import io.goudai.net.Connector;
 import io.goudai.net.session.AbstractSession;
 import io.goudai.net.session.factory.SessionFactory;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
@@ -14,11 +15,14 @@ import java.net.InetSocketAddress;
  * Created by freeman on 2016/1/31.
  */
 @RequiredArgsConstructor
+@Getter
 public class RequestSessionFactory extends BasePooledObjectFactory<RequestSession> {
     private final String serverIp;
     private final int serverPort;
     private final Connector connector;
     private final SessionFactory sessionFactory;
+
+
 
     @Override
     public RequestSession create() throws Exception {

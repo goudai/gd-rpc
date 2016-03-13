@@ -9,6 +9,7 @@ import io.goudai.commons.util.NetUtil;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Builder
+@ToString
 public class Protocol {
 
     public static final String gdRPC = "gdRPC";
@@ -35,7 +37,7 @@ public class Protocol {
     private String group;
     private String service;
     private String host;
-    private String port;
+    private int port;
     private String type;
     private long timeout;
     private Set<String> methods = new HashSet<>();
@@ -57,7 +59,7 @@ public class Protocol {
         //provider || consumer
         protocol.type = split2[0].split(":")[0];
         protocol.host = split4[0];
-        protocol.port = split3[0].split(":")[1];
+        protocol.port = Integer.valueOf(split3[0].split(":")[1]);
         protocol.service = split3[1];
 
         Map<String, String> map = new HashMap<>();
@@ -74,8 +76,10 @@ public class Protocol {
     }
 
     public String value() {
+        String s = this.methods == null ? "" : "&methods=" + this.methods.stream().collect(Collectors.joining(","));
         return this.type + "://" + this.host + ":" + this.port + "/" + this.service
-                + "?timeout=" + this.timeout + "&methods=" + this.methods.stream().collect(Collectors.joining(","))
+                + "?timeout=" + this.timeout +
+                s
                 + "&app=" + this.application + "&version=" + this.version + "&group=" + this.getGroup()
                 ;
     }

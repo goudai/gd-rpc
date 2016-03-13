@@ -9,5 +9,5 @@ import java.util.List;
  */
 public interface Callback {
 
-    void notify(List<URL> protocols, CallbackType type, Exception e);
+    void notify(List<URL> urls, CallbackType type, Exception e);
 }
