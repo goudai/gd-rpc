@@ -2,22 +2,6 @@
 
 ![Nio 架构图](https://raw.githubusercontent.com/goudai/gd-rpc/master/net-work.png)
 
-### 注册协议
-
-         gdRPC 根目录
-          --$|{applicationName.version.group} 模块名称.版本号.分组 account.v1.0.0.shanghai
-            --|${service} 服务类全路径 com.goudai.test.UserService
-                --| provider 服务提供者目录
-                     --|具体的服务提通知"provider://host:port/com.goudai.test.UserService?timeout=1000&methods=test,getUser,findUser&app=gd-app&version=v1.0.0&group=gd-group"
-                --| consumer 消费者目录
-                     --|具体的调用者 "consumer://host:port/com.goudai.test.UserService?timeout=1000&methods=test,getUser,findUser&app=gd-app&version=v1.0.0&group=gd-group"
-
-
-### 单机的性能测试
-1.[PerfServerBootstrapTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PerfServerBootstrapTest.java)<br />
-2.[PerfClientTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PerfClientTest.java)<br />
-![QPS](https://raw.githubusercontent.com/goudai/gd-rpc/master/qps.png)
-
 
 ### 单机RPC调用
 #### rpc server
@@ -79,7 +63,24 @@
 
             }
         }
+### 单机的性能测试
+1.[PerfServerBootstrapTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PerfServerBootstrapTest.java)<br />
+2.[PerfClientTest](https://github.com/goudai/gd-rpc/blob/master/gd-rpc/src/test/java/io/goudai/rpc/performance/PerfClientTest.java)<br />
+![QPS](https://raw.githubusercontent.com/goudai/gd-rpc/master/qps.png)
+
+
 ### 集群RPC调用 依赖zookeeper注册中心
+
+### 注册协议
+
+         gdRPC 根目录
+          --$|{applicationName.version.group} 模块名称.版本号.分组 account.v1.0.0.shanghai
+            --|${service} 服务类全路径 com.goudai.test.UserService
+                --| provider 服务提供者目录
+                     --|具体的服务提通知"provider://host:port/com.goudai.test.UserService?timeout=1000&methods=test,getUser,findUser&app=gd-app&version=v1.0.0&group=gd-group"
+                --| consumer 消费者目录
+                     --|具体的调用者 "consumer://host:port/com.goudai.test.UserService?timeout=1000&methods=test,getUser,findUser&app=gd-app&version=v1.0.0&group=gd-group"
+
 #### rpc server
         public class ServerBootTest {
              public static void main(String[] args) throws Exception {
