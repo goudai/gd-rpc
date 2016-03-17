@@ -48,9 +48,12 @@ public class ZooKeeRegistry implements Registry {
         try {
             String path = check(protocol, protocol.getType()) + "/" + URLEncoder.encode(protocol.value(), "utf-8");
             log.info("register path " + path);
-            if (this.client.checkExists().forPath(path) == null) {
-                this.client.create().withMode(CreateMode.EPHEMERAL).forPath(path);
+            if (this.client.checkExists().forPath(path) != null) {
+                this.client.delete().forPath(path);
+                log.info("delete path {}", path);
             }
+            this.client.create().withMode(CreateMode.EPHEMERAL).forPath(path);
+            log.info("create EPHEMERAL path {}", path);
         } catch (Exception e) {
             throw new RuntimeException("registry service fail！service=[" + protocol.getService() + "]", e);
         }
@@ -77,7 +80,7 @@ public class ZooKeeRegistry implements Registry {
     public void unRegister(Protocol protocol) {
         try {
             String path = check(protocol, protocol.getType()) + "/" + URLEncoder.encode(protocol.value(), "utf-8");
-            if (this.client.checkExists().forPath(path) == null) {
+            if (this.client.checkExists().forPath(path) != null) {
                 this.client.delete().forPath(path);
             }
         } catch (Exception e) {
@@ -92,10 +95,9 @@ public class ZooKeeRegistry implements Registry {
             synchronized (path) {
                 PathChildrenCache cache = pathChildrenCacheMap.get(path);
                 if (cache == null) {
-                    log.info("");
                     cache = PathChildrenCacheUtil.pathChildrenCache(this.client, path, false, callback);
                     cache.start();
-                    log.info("subscribe protocol =" + path);
+                    log.info("subscribe path  {}", path);
                     pathChildrenCacheMap.put(path, cache);
                 }
             }

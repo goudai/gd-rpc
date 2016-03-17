@@ -45,13 +45,13 @@ public class Session<REQ, RESP> extends AbstractSession {
             //TODO 考虑是否每次强行读完 还是选择读物一个最大包
             int n = 0;
             while ((n = socketChannel.read(buf)) > 0) {
-                if (n < 0) this.close();
                 buf.flip();
                 byte[] bytes = new byte[buf.limit()];
                 buf.get(bytes);
                 readBuffer.writeBytes(bytes, 0, buf.limit());
                 buf.clear();
             }
+            if (n < 0) this.close();
         } finally {
             BufferPool.getInstance().releaseBuffer(buf);
         }
@@ -90,11 +90,15 @@ public class Session<REQ, RESP> extends AbstractSession {
     }
 
     @Override
-    public void write(Object object) {
-        ContextHolder.getContext().getSessionListener().onWrite(this, object);
-        this.writeBufferQueue.offer(encoder.encode((RESP) object));
-        key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
-        key.selector().wakeup();
+    public boolean write(Object object) {
+        if (key.isValid()) {
+            ContextHolder.getContext().getSessionListener().onWrite(this, object);
+            this.writeBufferQueue.offer(encoder.encode((RESP) object));
+            key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
+            key.selector().wakeup();
+            return true;
+        }
+        return false;
     }
 
     private void restReadBuffer(IoBuffer tempBuf) {

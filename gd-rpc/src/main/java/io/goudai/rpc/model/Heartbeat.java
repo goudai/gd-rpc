@@ -15,6 +15,10 @@ public class Heartbeat implements Serializable {
         return HeartbeatHolder.instance;
     }
 
+    private Object readResolve() {
+        return HeartbeatHolder.instance;
+    }
+
     private static class HeartbeatHolder {
         private final static Heartbeat instance = new Heartbeat();
     }

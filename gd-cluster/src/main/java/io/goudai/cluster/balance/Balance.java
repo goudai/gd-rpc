@@ -14,11 +14,11 @@ public interface Balance {
     AtomicInteger atomicInteger = new AtomicInteger();
 
     default URL select(List<URL> urls) throws RpcException{
-//        int i = this.atomicInteger.getAndIncrement() % urls.size();
-//        if (i < 0) {
-//            this.atomicInteger.set(0);
-//            i = 0;
-//        }
-        return urls.get(0);
+        int i = this.atomicInteger.getAndIncrement() % urls.size();
+        if (i < 0) {
+            this.atomicInteger.set(0);
+            i = 0;
+        }
+        return urls.get(i);
     }
 }

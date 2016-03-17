@@ -9,6 +9,7 @@ import io.goudai.registry.Registry;
 import io.goudai.registry.protocol.Protocol;
 import io.goudai.registry.protocol.URL;
 import io.goudai.registry.zookeeper.CallbackType;
+import io.goudai.rpc.exception.ChannelClosedException;
 import io.goudai.rpc.exception.RpcException;
 import io.goudai.rpc.invoker.Invoker;
 import io.goudai.rpc.invoker.RequestSession;
@@ -104,6 +105,10 @@ public class KeyPooledClusterInvoker implements Invoker {
         try {
             requestSession = this.availableSessionCache.borrowObject(url);
             response = requestSession.invoker(request);
+        } catch (ChannelClosedException e) {
+            //检查到是远程server已经关闭 从缓存中剔除
+            this.availableHostCache.remove(url);
+            this.availableSessionCache.clear(url);
         } catch (Exception e) {
             response.setException(e);
         } finally {

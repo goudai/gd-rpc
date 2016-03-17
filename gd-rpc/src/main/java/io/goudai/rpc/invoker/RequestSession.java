@@ -3,6 +3,7 @@ package io.goudai.rpc.invoker;
 import io.goudai.net.Connector;
 import io.goudai.net.session.Session;
 import io.goudai.net.session.factory.SessionFactory;
+import io.goudai.rpc.exception.ChannelClosedException;
 import io.goudai.rpc.exception.RequestSessionStartedException;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
@@ -24,10 +25,10 @@ public class RequestSession {
     private final Connector connector;
     private final InetSocketAddress remoteAddress;
     private final SessionFactory sessionFactory;
+    ChannelClosedException channelClosedException = new ChannelClosedException();
     private Session session;
     //TODO 暂时写死 以后移动到配置文件中
     private long timeout = 3000;
-
 
     public RequestSession(Connector connector, InetSocketAddress remoteAddress, SessionFactory sessionFactory) {
         this.connector = connector;
@@ -42,7 +43,11 @@ public class RequestSession {
 
     public Response invoker(Request request) {
         SyncResponse syncResponse = SyncResponseManager.createSyncResponse(request);
-        this.session.write(request);
+        boolean write = this.session.write(request);
+        if (!write) {
+            SyncResponseManager.removeSyncResponse(syncResponse.getId()).getResponse();
+            throw channelClosedException;
+        }
         return syncResponse.awaitResponse();
 
 

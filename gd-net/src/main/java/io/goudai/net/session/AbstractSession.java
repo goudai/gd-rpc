@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -24,7 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Getter
 @Setter
 @Slf4j
-public abstract class AbstractSession  {
+public abstract class AbstractSession {
     /*session的唯一标示*/
 
     protected final long id;
@@ -57,28 +58,29 @@ public abstract class AbstractSession  {
 
     public void awaitConnected(long time) {
         try {
-             if(!this.connectLatch.await(time, TimeUnit.MILLISECONDS)){
-                 throw new ConnectedTimeoutException("connected server timeout ! timeout=[" + time + "]");
-             };
+            if (!this.connectLatch.await(time, TimeUnit.MILLISECONDS)) {
+                throw new ConnectedTimeoutException("connected server timeout ! timeout=[" + time + "]");
+            }
+            ;
         } catch (InterruptedException e) {
             // ig
         }
     }
 
 
-    public void close()   {
+    public void close() {
         synchronized (this) {
             if (isClosed()) return;
             ContextHolder.getContext().getSessionListener().onDestory(this);
             try {
                 if (key != null) key.cancel();
             } catch (Exception e) {
-                log.warn(e.getMessage(),e);
+                log.warn(e.getMessage(), e);
             }
             try {
                 if (this.socketChannel != null) this.socketChannel.close();
             } catch (IOException e) {
-                log.warn(e.getMessage(),e);
+                log.warn(e.getMessage(), e);
             }
         }
     }
@@ -111,25 +113,25 @@ public abstract class AbstractSession  {
      * @param
      * @throws IOException
      */
-    public abstract void write(Object t);
+    public abstract boolean write(Object t);
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AbstractSession{");
         sb.append("id=").append(id);
-        sb.append(", createdTime=").append(new Date(createdTime).toLocaleString());
+        sb.append(", createdTime=").append(DateFormat.getDateTimeInstance().format(new Date(createdTime)));
         sb.append(", status=").append(status);
         try {
-            if(socketChannel.isOpen() && !(status == Status.NEW))
-            sb.append(",socketChannel=").append(socketChannel.getLocalAddress() +" --> " + socketChannel.getRemoteAddress());
+            if (socketChannel.isOpen() && !(status == Status.NEW))
+                sb.append(",socketChannel=").append(socketChannel.getLocalAddress() + " --> " + socketChannel.getRemoteAddress());
         } catch (IOException e) {
-           log.warn(e.getMessage(),e);
+            log.warn(e.getMessage(), e);
         }
         sb.append('}');
         return sb.toString();
     }
 
-    public static enum Status {
+    public enum Status {
         NEW,//表示session刚刚创建
         CONNECTED,
         OPEN,//标示session已经注册到了reactor

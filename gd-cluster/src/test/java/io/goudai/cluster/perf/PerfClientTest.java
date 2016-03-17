@@ -45,7 +45,7 @@ public class PerfClientTest {
         ZooKeeRegistry registry = new ZooKeeRegistry();
         //cont requset N * treadCount
         final long N = 1000000;
-        final int threadCount = 50;
+        final int threadCount = 2;
         final AtomicLong counter = new AtomicLong(0);
         Bootstrap[] bootstraps = new Bootstrap[threadCount];
         Bootstrap bootstrap = new ClusterBootstrap(registry, 1);
