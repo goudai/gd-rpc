@@ -2,6 +2,10 @@
   <component name="NodeJsLocalInterpreters">
     <local-interpreter path="/usr/local/bin/node">
       <version-cache version="6.2.1" last-modified="1464903893000" />
+      <npm-package value="/usr/local/lib/node_modules/npm" />
     </local-interpreter>
+  </component>
+  <component name="NodeLocalInterpreterManager">
+    <node-interpreter path="/usr/local/bin/node" version="6.2.1" last-modified="1464903893000" />
   </component>
 </application>
