@@ -12,6 +12,8 @@
     <node-interpreter path="/usr/local/bin/node" version="6.2.1" last-modified="1464903893000" />
   </component>
   <component name="RefactoringSettings">
+    <option name="RENAME_SEARCH_IN_COMMENTS_FOR_PACKAGE" value="false" />
+    <option name="RENAME_SEARCH_FOR_TEXT_FOR_PACKAGE" value="false" />
     <option name="INTRODUCE_LOCAL_CREATE_FINALS" value="false" />
   </component>
 </application>
