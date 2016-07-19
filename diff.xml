@@ -27,6 +27,9 @@
       <entry key="Default">
         <PlaceSettings />
       </entry>
+      <entry key="Merge">
+        <PlaceSettings />
+      </entry>
     </option>
   </component>
 </application>
