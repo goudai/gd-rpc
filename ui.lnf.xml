@@ -1,7 +1,6 @@
 <application>
   <component name="UISettings">
     <option name="FONT_SIZE" value="11" />
-    <option name="HIDE_TOOL_STRIPES" value="false" />
     <option name="SHOW_MEMORY_INDICATOR" value="true" />
     <option name="USE_SMALL_LABELS_ON_TABS" value="false" />
     <option name="PRESENTATION_MODE_FONT_SIZE" value="11" />
