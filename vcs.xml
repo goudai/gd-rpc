@@ -6,6 +6,14 @@
           <option name="url" value="https://github.com/goudai/gd-rpc" />
           <option name="userName" value="" />
         </UrlAndUserName>
+        <UrlAndUserName>
+          <option name="url" value="http://git.oschina.net/ufohjl/sk-consumer" />
+          <option name="userName" value="" />
+        </UrlAndUserName>
+        <UrlAndUserName>
+          <option name="url" value="http://git.oschina.net" />
+          <option name="userName" value="247687009@qq.com" />
+        </UrlAndUserName>
       </list>
     </option>
     <option name="cloneParentDir" value="$USER_HOME$/IdeaProjects" />
