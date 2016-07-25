@@ -29,6 +29,7 @@ public class AbstractSessionListener implements SessionListener {
     @Override
     public void onRead(AbstractSession session, Object obj) {
         session.updateTime();
+
     }
 
     @Override

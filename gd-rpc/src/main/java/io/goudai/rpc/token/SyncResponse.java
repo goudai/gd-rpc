@@ -32,16 +32,16 @@ public class SyncResponse {
         this.latch.countDown();
     }
 
-    public Response awaitResponse()   {
+    public Response awaitResponse() {
         try {
             if (!this.latch.await(request.getTimeout(), TimeUnit.MILLISECONDS)) {
                 SyncResponseManager.removeSyncResponse(this.id);
-                throw new RequestTimeoutException("timeout=[" + this.request + "] requestId= [" + request.getId() + "]!");
+                throw new RequestTimeoutException("timeout=[" + this.request + "]");
             }
         } catch (InterruptedException e) {
-           //ig
+            //ig
         } catch (RequestTimeoutException e) {
-           throw e;
+            throw e;
         }
         //未超时的情况下 response会唤醒此方法并给response赋值
         return this.response;

@@ -6,11 +6,11 @@ import io.goudai.net.handler.codec.DefaultDecoder;
 import io.goudai.net.handler.codec.DefaultEncoder;
 import io.goudai.net.handler.serializer.JavaSerializer;
 import io.goudai.net.handler.serializer.Serializer;
-import io.goudai.net.session.AbstractSessionListener;
 import io.goudai.rpc.SimpleUserService;
 import io.goudai.rpc.UserService;
 import io.goudai.rpc.bootstarp.ServerBootstrap;
 import io.goudai.rpc.handler.RequestHandler;
+import io.goudai.rpc.listener.RpcListener;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
 
@@ -28,7 +28,7 @@ public class ServerBootstrapTest {
                 .encoder(new DefaultEncoder<>(serializer))
                 .serializer(serializer)
                 .channelHandler(new RequestHandler())
-                .sessionListener(new AbstractSessionListener())
+                .sessionListener(new RpcListener())
                 .executorService(Executors.newFixedThreadPool(200, new NamedThreadFactory()))
                 .build()
                 .init();
@@ -36,7 +36,7 @@ public class ServerBootstrapTest {
 
     public static void main(String[] args) throws Exception {
         // 2 init rpc server
-        ServerBootstrap serverBootstrap = new ServerBootstrap(2,9999);
+        ServerBootstrap serverBootstrap = new ServerBootstrap(1,9999);
         //3 registry shutdown clean hook
         Runtime.getRuntime().addShutdownHook(new Thread(serverBootstrap::shutdown));
         //4 registry services..

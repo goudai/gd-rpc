@@ -11,7 +11,9 @@ public class RpcListener extends AbstractSessionListener {
     @Override
     public void onOpen(AbstractSession session) {
         super.onOpen(session);
-        SessionManager.getInstance().add(session);
+        SessionManager instance = SessionManager.getInstance();
+        instance.add(session);
+        instance.sessions().forEach(System.out::println);
     }
 
     @Override

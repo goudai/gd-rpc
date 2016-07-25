@@ -84,7 +84,7 @@ public class Session<REQ, RESP> extends AbstractSession {
             if (buffer.remaining() != 0) {
                 return;
             }
-
+            ;
             writeBufferQueue.remove();
         }
     }
