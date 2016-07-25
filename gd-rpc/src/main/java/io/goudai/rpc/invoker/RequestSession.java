@@ -45,7 +45,7 @@ public class RequestSession {
         SyncResponse syncResponse = SyncResponseManager.createSyncResponse(request);
         boolean write = this.session.write(request);
         if (!write) {
-            SyncResponseManager.removeSyncResponse(syncResponse.getId()).getResponse();
+            SyncResponseManager.removeSyncResponse(syncResponse.getId());
             throw channelClosedException;
         }
         return syncResponse.awaitResponse();

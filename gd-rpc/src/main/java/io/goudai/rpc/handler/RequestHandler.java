@@ -58,7 +58,7 @@ public class RequestHandler implements ChannelHandler, ServiceRegistryHandler {
         if (!this.methodConcurrentHashMap.contains(key)) {
             String service = request.getService();
             String methodName = request.getMethodName();
-            Class<?>[] patamType = request.getPatamType();
+            Class<?>[] patamType = request.getParamTypes();
             Object o = services.get(service);
             if (o == null) throw new ServiceNotRegistryException("No services [ " + request.getService() + " ]");
             Method method = o.getClass().getMethod(methodName, patamType);

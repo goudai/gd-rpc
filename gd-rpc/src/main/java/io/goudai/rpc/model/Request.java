@@ -18,7 +18,7 @@ public class Request implements Serializable {
     private String service;
     private String methodName;
     private Object[] params;
-    private Class<?>[] patamType;
+    private Class<?>[] paramTypes;
     public long createTime;
     public long timeout;
 

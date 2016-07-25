@@ -22,7 +22,8 @@ public class JavaProxyServiceFactory implements ProxyServiceFactory {
 
 
     public <T> T createServiceProxy(Class<T> interfaceClass) throws RpcException {
-        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, (proxy, method, args) -> {
+        return (T) Proxy.newProxyInstance(interfaceClass.getClassLoader(),
+                new Class[]{interfaceClass}, (proxy, method, args) -> {
             Response response = invoker.invoke(makeRequest(interfaceClass, method, args));
             if (response.getException() != null) throw response.getException();
             return response.getResult();
@@ -35,7 +36,7 @@ public class JavaProxyServiceFactory implements ProxyServiceFactory {
                 .id(UUID.randomUUID().toString())
                 .service(klass.getName())
                 .params(args)
-                .patamType(method.getParameterTypes())
+                .paramTypes(method.getParameterTypes())
                 .methodName(method.getName())
                 .createTime(System.currentTimeMillis())
                 .timeout(3000)
