@@ -1,0 +1,8 @@
+<application>
+  <component name="FileTypeManager" version="17">
+    <extensionMap>
+      <mapping pattern="javaError" type="PLAIN_TEXT" />
+      <mapping pattern=".sync_yield.js.swp" type="PLAIN_TEXT" />
+    </extensionMap>
+  </component>
+</application>
