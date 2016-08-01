@@ -1,4 +1,7 @@
 <application>
+  <component name="NodeJsLocalInterpreters">
+    <local-interpreter path="/usr/local/bin/node" />
+  </component>
   <component name="RefactoringSettings">
     <option name="INTRODUCE_LOCAL_CREATE_FINALS" value="false" />
   </component>
