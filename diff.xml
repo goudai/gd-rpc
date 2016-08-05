@@ -2,6 +2,9 @@
   <component name="DiffManager" COMPARISON_POLICY="Ignore spaces" />
   <component name="DiffSettings">
     <option name="PLACES_MAP">
+      <entry key="ChangesView">
+        <PlaceSettings />
+      </entry>
       <entry key="CommitDialog">
         <PlaceSettings />
       </entry>
