@@ -1,0 +1,20 @@
+<application>
+  <component name="DiffManager" COMPARISON_POLICY="Ignore spaces" />
+  <component name="TextDiffSettings">
+    <option name="PLACES_MAP">
+      <entry key="ChangesView">
+        <PlaceSettings>
+          <option name="EXPAND_BY_DEFAULT" value="false" />
+        </PlaceSettings>
+      </entry>
+      <entry key="CommitDialog">
+        <PlaceSettings>
+          <option name="EXPAND_BY_DEFAULT" value="false" />
+        </PlaceSettings>
+      </entry>
+      <entry key="Default">
+        <PlaceSettings />
+      </entry>
+    </option>
+  </component>
+</application>
