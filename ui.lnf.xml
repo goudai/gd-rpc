@@ -2,6 +2,8 @@
   <component name="UISettings">
     <option name="FONT_FACE" value="Luminari" />
     <option name="FONT_SIZE" value="11" />
+    <option name="OVERRIDE_CONSOLE_CYCLE_BUFFER_SIZE" value="true" />
+    <option name="CONSOLE_CYCLE_BUFFER_SIZE_KB" value="102400" />
     <option name="HIDE_TOOL_STRIPES" value="false" />
     <option name="SHOW_MEMORY_INDICATOR" value="true" />
     <option name="USE_SMALL_LABELS_ON_TABS" value="false" />
