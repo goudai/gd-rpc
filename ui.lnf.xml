@@ -1,5 +1,6 @@
 <application>
   <component name="UISettings">
+    <option name="FONT_FACE" value="Luminari" />
     <option name="FONT_SIZE" value="11" />
     <option name="HIDE_TOOL_STRIPES" value="false" />
     <option name="SHOW_MEMORY_INDICATOR" value="true" />
