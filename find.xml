@@ -1,7 +1,7 @@
 <application>
   <component name="FindSettings">
-    <option name="customScope" value="Project Files" />
-    <option name="defaultScopeName" value="Project Files" />
-    <option name="SEARCH_SCOPE" value="Project Files" />
+    <option name="customScope" value="File '.../zy-service-impl/src/main/java/com/zy/ServiceBootstrap.java - [zy-service-impl]'" />
+    <option name="defaultScopeName" value="File '.../zy-service-impl/src/main/java/com/zy/ServiceBootstrap.java - [zy-service-impl]'" />
+    <option name="SEARCH_SCOPE" value="File '.../zy-service-impl/src/main/java/com/zy/ServiceBootstrap.java - [zy-service-impl]'" />
   </component>
 </application>
