@@ -6,7 +6,10 @@
       <mapping pattern="wrapper-linux-x86-64" type="PLAIN_TEXT" />
       <mapping pattern=".sync_yield.js.swp" type="PLAIN_TEXT" />
       <mapping ext="password" type="PLAIN_TEXT" />
+      <mapping ext="so" type="PLAIN_TEXT" />
       <mapping ext="access" type="PLAIN_TEXT" />
+      <mapping ext="luac" type="PLAIN_TEXT" />
+      <removed_mapping ext="so" type="UNKNOWN" />
       <mapping ext="conf" type="nginx file type" />
     </extensionMap>
   </component>
