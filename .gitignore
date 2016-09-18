@@ -30,3 +30,9 @@ target/
 /web-browsers.xml
 /toStringTemplates.xml
 /ui.lnf.xml
+/logsupport/
+/tools/
+/inspection/
+/colors/
+/_mac/
+/codestyles/
