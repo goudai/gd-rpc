@@ -8,7 +8,6 @@ import io.goudai.commons.factory.NamedThreadFactory;
 import io.goudai.net.context.Context;
 import io.goudai.net.handler.codec.DefaultDecoder;
 import io.goudai.net.handler.codec.DefaultEncoder;
-import io.goudai.net.handler.serializer.JavaSerializer;
 import io.goudai.net.handler.serializer.Serializer;
 import io.goudai.net.session.AbstractSessionListener;
 import io.goudai.registry.ZooKeeRegistry;
@@ -26,7 +25,7 @@ public class ServerBootTest {
     public static void main(String[] args) throws Exception {
         ClusterConfig.application = "myApp";
         //1 init context
-        Serializer serializer = new JavaSerializer();
+        Serializer serializer = new JsonSerizable();
         ZooKeeRegistry registry = new ZooKeeRegistry();
         registry.startup();
         Context.<Request, Response>builder()
@@ -39,8 +38,9 @@ public class ServerBootTest {
                 .build()
                 .init();
         ClusterConfig.port = 6161;
+
         // 2 init rpc server
-        ClusterServerBootstrap serverBootstrap = new ClusterServerBootstrap(2);
+        ClusterServerBootstrap serverBootstrap = new ClusterServerBootstrap(1);
         //4 registry services..
         serverBootstrap.registry(UserService.class, new SimpleUserService());
         //3 registry shutdown clean hook

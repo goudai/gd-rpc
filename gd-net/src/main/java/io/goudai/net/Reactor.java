@@ -175,18 +175,18 @@ public class Reactor implements LifeCycle {
         }
 
         private void asyncRegistry() {
-            AsyncRegistrySocketChannel arsc = null;
-            while ((arsc = this.asyncRegistrySocketChannels.poll()) != null) {
+            AsyncRegistrySocketChannel channel;
+            while ((channel = this.asyncRegistrySocketChannels.poll()) != null) {
                 try {
-                    if (arsc.session != null) {
-                        SelectionKey key = arsc.socketChannel.register(selector, arsc.ops, arsc.session);
-                        arsc.session.setKey(key);
+                    if (channel.session != null) {
+                        SelectionKey key = channel.socketChannel.register(selector, channel.ops, channel.session);
+                        channel.session.setKey(key);
                     } else {
-                        SelectionKey key = arsc.socketChannel.register(selector, arsc.ops);
-                        arsc.session = sessionFactory.make(arsc.socketChannel, key);
-                        key.attach(arsc.session);
+                        SelectionKey key = channel.socketChannel.register(selector, channel.ops);
+                        channel.session = sessionFactory.make(channel.socketChannel, key);
+                        key.attach(channel.session);
                     }
-                    ContextHolder.getContext().getSessionListener().onOpen(arsc.session);
+                    ContextHolder.getContext().getSessionListener().onOpen(channel.session);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }

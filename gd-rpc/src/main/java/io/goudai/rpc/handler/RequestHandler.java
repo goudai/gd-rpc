@@ -34,13 +34,13 @@ public class RequestHandler implements ChannelHandler, ServiceRegistryHandler {
                 response.setException(e);
             } finally {
                 //timeout,not send response
-                long timeout = System.currentTimeMillis() - request.getCreateTime();
-                if (timeout > request.getTimeout()) {
-                    if (log.isWarnEnabled())
-                        log.debug("request timeout,not send response!  invoker time =[{}]. request set timeout = [{}].retquest [{}]", timeout, request.getTimeout(), request);
-                } else {
-                    session.write(response);
-                }
+//                long timeout = System.currentTimeMillis() - request.getCreateTime();
+//                if (timeout > request.getTimeout()) {
+//                    if (log.isWarnEnabled())
+//                        log.debug("request timeout,not send response!  invoker time =[{}]. request set timeout = [{}].retquest [{}]", timeout, request.getTimeout(), request);
+//                } else {
+//                }
+                session.write(response);
             }
         } else if (obj instanceof Heartbeat) {
             //处理心跳信息

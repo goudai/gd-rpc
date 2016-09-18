@@ -18,6 +18,7 @@ public class DefaultDecoder<T> implements Decoder<T> {
     @Override
     public IoBuffer decode(IoBuffer in, List<T> requests) {
         while (true) {
+
             in.mark();
             if (in.remaining() <= BODY_LEN) {
                 in.reset();
@@ -33,11 +34,11 @@ public class DefaultDecoder<T> implements Decoder<T> {
             byte[] body = new byte[len];
             in.readBytes(body);
             T obj = (T) serializer.deserialize(body);
-            requests.add(obj);
             if (obj == null) {
                 in.reset();
                 return in;
             }
+            requests.add(obj);
         }
     }
 }
