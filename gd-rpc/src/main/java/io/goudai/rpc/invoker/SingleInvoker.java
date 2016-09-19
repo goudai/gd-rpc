@@ -1,7 +1,7 @@
 package io.goudai.rpc.invoker;
 
 import io.goudai.commons.pool.Pool;
-import io.goudai.commons.pool.impl.Commons2Pool;
+import io.goudai.commons.pool.impl.CommonsPool2Impl;
 import io.goudai.rpc.exception.RpcException;
 import io.goudai.rpc.model.Request;
 import io.goudai.rpc.model.Response;
@@ -21,12 +21,12 @@ public class SingleInvoker implements Invoker {
         config.setMaxIdle(100);
         config.setMaxTotal(100);
 //        config.setTestOnReturn(true);
-        this.requestSessionPool = new Commons2Pool<>(config, objectFactory);
+        this.requestSessionPool = new CommonsPool2Impl<>(config, objectFactory);
     }
 
     public SingleInvoker(PooledObjectFactory<RequestSession> objectFactory, GenericObjectPoolConfig config) {
         config.setTestOnReturn(true);
-        this.requestSessionPool = new Commons2Pool<>(config, objectFactory);
+        this.requestSessionPool = new CommonsPool2Impl<>(config, objectFactory);
     }
     
 

@@ -10,16 +10,13 @@ import java.util.Set;
 public class MethodUtil {
 
 
-
     public static Set<String> getMethods(String interfaceName) throws ClassNotFoundException {
-        Set<String> methods = new HashSet<>();
-        Arrays.asList(Class.forName(interfaceName).getMethods()).forEach(method -> methods.add(method.getName()));
-        return methods;
+        return getMethods(Class.forName(interfaceName));
     }
 
     public static Set<String> getMethods(Class<?> interfaceClass) {
         Set<String> methods = new HashSet<>();
-        Arrays.asList(interfaceClass.getMethods()).forEach(method -> methods.add(method.getName()));
+        Arrays.asList(interfaceClass.getMethods()).stream().map(m -> m.getName()).forEach(methods::add);
         return methods;
     }
 }

@@ -8,13 +8,13 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 /**
  * Created by freeman on 2016/1/30.
  */
-public class Commons2Pool<T> implements Pool<T> {
+public class CommonsPool2Impl<T> implements Pool<T> {
     private GenericObjectPool<T> pool;
     private GenericObjectPoolConfig config;
     private PooledObjectFactory<T> factory;
 
 
-    public Commons2Pool(GenericObjectPoolConfig config, PooledObjectFactory<T> factory) {
+    public CommonsPool2Impl(GenericObjectPoolConfig config, PooledObjectFactory<T> factory) {
         this.pool = new GenericObjectPool<T>(factory, config);
         this.factory = factory;
         this.config = config;
@@ -33,5 +33,9 @@ public class Commons2Pool<T> implements Pool<T> {
     @Override
     public void destroy() {
         this.pool.close();
+    }
+
+    public static void main(String[] args) {
+        final CommonsPool2Impl<Object> objectCommonsPool2 = new CommonsPool2Impl<>(null,null);
     }
 }
