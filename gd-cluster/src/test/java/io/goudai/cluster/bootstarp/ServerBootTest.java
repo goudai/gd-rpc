@@ -38,7 +38,6 @@ public class ServerBootTest {
                 .build()
                 .init();
         ClusterConfig.port = 6161;
-
         // 2 init rpc server
         ClusterServerBootstrap serverBootstrap = new ClusterServerBootstrap(1);
         //4 registry services..

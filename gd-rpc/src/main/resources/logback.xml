@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<!-- 控制台输出 -->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<!-- 日志输出编码 -->
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<prudent>true</prudent>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>./%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>60</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<charset>UTF-8</charset>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+
+	<!-- 日志输出级别 -->
+	<root level="info">
+		<appender-ref ref="stdout"/>
+	</root>
+
+</configuration>
