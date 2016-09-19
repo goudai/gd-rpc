@@ -47,5 +47,6 @@ public class ServerBootTest {
         Runtime.getRuntime().addShutdownHook(new Thread(serverBootstrap::shutdown));
         //5 started rpc server and await thread
         serverBootstrap.startup();
+
     }
 }
